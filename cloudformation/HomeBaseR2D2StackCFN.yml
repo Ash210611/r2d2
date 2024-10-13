@@ -1,0 +1,155 @@
+# Resources
+
+# R2D2Subnet
+#   Subnet to use for the Fleet
+
+# R2D2RouteTable
+#   Route Table to use for the Fleet Subnet
+
+# R2D2AssosiateRouteTable
+#   Assosiates the Route table with the Fleet Subnet
+
+# AppStreamSG
+#   SecurityGroup to use with the Fleet
+
+# R2D2AppStreamFleet
+#   The AppStream Fleet
+
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  EnvName:
+    Type: String
+    Description: The Env Name (nonprod, public, prod)
+  Color:
+    Type: String
+    Description: The color of the R2D2 Stack
+  HomeBaseVPC:
+    Type: String
+    Description: The VPC of the colorless infrastructure 
+  CidrBlockR2D2Subnet:
+      Type: String
+      Description: CIDR block of the subnet
+  KeyName:
+    Type: String
+    Description: Name of the Key
+  AppStreamImageName:
+    Type: String
+    Description: The name of the image to use
+Mappings:
+  RegionMap:
+    us-east-1: 
+      DisplayName: virginia
+    us-east-2: 
+      DisplayName: ohio
+    us-west-2: 
+      DisplayName: oregon
+    eu-west-1:
+      DisplayName: ireland
+    eu-west-2:
+      DisplayName: london
+    eu-west-3:
+      DisplayName: paris
+    eu-central-1:
+      DisplayName: frankfurt
+    ap-southeast-1:
+      DisplayName: singapore
+    ap-southeast-2:
+      DisplayName: sydney
+    ap-northeast-1:
+      DisplayName: tokyo
+    ap-northeast-2:
+      DisplayName: seoul
+    ap-south-1:
+      DisplayName: mumbai
+    ca-central-1:
+      DisplayName: montreal
+    us-west-1:
+      DisplayName: california
+    eu-north-1:
+      DisplayName: stockholm
+    sa-east-1:
+      DisplayName: saopaulo
+    me-south-1: 
+      DisplayName: bahrain
+    af-south-1: 
+      DisplayName: capetown
+    ap-northeast-3:
+      DisplayName: osaka
+    eu-south-1: 
+      DisplayName: milan
+    eu-south-2:
+      DisplayName: spain
+    eu-central-2: 
+      DisplayName: zurich
+    ap-southeast-3: 
+      DisplayName: jakarta
+    ap-south-2:
+      DisplayName: hyderabad
+    me-central-1: 
+      DisplayName: uae
+Resources:
+  R2D2Subnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref CidrBlockR2D2Subnet
+      VpcId: !Ref HomeBaseVPC
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub
+            - "r2d2subnet_${EnvName}_${Region}_${Color}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  R2D2RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref HomeBaseVPC
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub
+            - "r2d2subnet_${EnvName}_${Region}_${Color}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  R2D2AssosiateRouteTable:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref R2D2Subnet
+      RouteTableId: !Ref R2D2RouteTable
+  AppStreamSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SG for AppStream
+      GroupName: AppStreamSG
+      VpcId: !Ref HomeBaseVPC
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub
+            - "r2d2sg_${EnvName}_${Region}_${Color}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  R2D2AppStreamFleet:
+    Type: AWS::AppStream::Fleet
+    Properties:
+      ComputeCapacity:
+        DesiredInstances: 1
+      Description: Fleet for the R2D2
+      DisconnectTimeoutInSeconds: 900
+      DisplayName: R2D2 Fleet
+      EnableDefaultInternetAccess: False
+      FleetType: ON_DEMAND
+      IdleDisconnectTimeoutInSeconds: 900
+      ImageName: !Ref AppStreamImageName
+      InstanceType: stream.standard.medium
+      MaxUserDurationInSeconds: 345600
+      Name: !Sub
+        - "r2d2fleet_${EnvName}_${Region}_${Color}"
+        - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref AppStreamSG
+        SubnetIds:
+          - !Ref R2D2Subnet
+Outputs:
+  R2D2RouteTable:
+    Value: !Ref R2D2RouteTable
+  FleetCidr:
+    Value: !Ref CidrBlockR2D2Subnet

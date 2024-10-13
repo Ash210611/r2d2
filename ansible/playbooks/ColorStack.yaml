@@ -1,0 +1,118 @@
+---
+# The Color stack is built on top of the Colorless infrastructure
+# So we need to get the information from that stack to use here
+- name: Get Homebase CFN info
+  cloudformation_info:
+    stack_name: "{{homebase_cfn_name}}"
+    region: "{{reverse_envmapping[homebase_region]}}"
+  register: homebase_cfn
+
+
+
+# filter the output into a usable form
+# all we want is the stack output, so this puts it into an easily accessible form
+- name: Set homebase output
+  set_fact:
+    homebase_output: "{{homebase_cfn['cloudformation'][homebase_cfn_name]['stack_outputs']}}"
+
+
+# get the IP of the logging server, for use in the S3 Configuration
+# The proxy servers use this config to send logs to the logging server
+# This whole process may be unnecessary if we give the logging server a DNS
+- name: Set loggingserver
+  set_fact:
+    loggingserver: "{{homebase_output['LoggingIP']}}"
+
+# This appends the logging server replacement values to the existing replacements found
+# in the environment vars file
+# See the environment file for how this looks
+# s3_replacement is the list or replacements, so this is like x = x+1 
+- name: Set s3_replacement
+  set_fact:
+    s3_replacement: "{{s3_replacement+ [{'varName': '__LOGGINGSERVER__', 'value': loggingserver}]}}"
+
+# Can probably remove this, or keep it for useful debug
+- name: Debug s3_replacement
+  debug:
+    var: s3_replacement
+
+
+# since we are modifying files, we make a copy first so we don't edit the originals
+# this goes into the tmp directory. Right now we don't delete that directory
+# in order to debug, but we should once more polish is applied
+- name: Copy Files to tmp
+  copy:
+    src: "../{{item['path']}}"
+    dest: "./tmp/"
+  with_items: "{{s3_files}}"
+
+
+# Do the actual replacement. values to replace are named like __TOREPLACE__
+# The replacement is done in the tmp directory, so we don't modify the originals
+- name: Replace Values in tmp
+  replace:
+    path:    "./tmp/{{item[1]['name']}}"
+    regexp:  "{{item[0]['varName']}}"
+    replace: "{{item[0]['value']}}"
+  with_nested:
+    - "{{s3_replacement}}"
+    - "{{s3_files}}"
+
+# Put the files in S3 for the new proxy servers to use
+- name: upload files to s3
+  aws_s3: 
+    bucket: "{{s3_config_bucket}}"
+    src:    "./tmp/{{item['name']}}"
+    object: "{{item['name']}}"
+    mode:   put
+  with_items: "{{s3_files}}"
+
+# TO DO: Make it so we can re-run this without interfering with the appstream stuff
+# Now that we have the output from the homebase, we can run the colored homebase stack
+# Note: this could be moved to before the S3 replacement, since this does not depend on it
+# Note: for Prod set 'CidrBlockR2D2Subnet' below to /21 octet and for nonProd set to /24 octet
+- name: "{{color}} Homebase Stack for {{homebase_region}}"
+  cloudformation:
+    stack_name: "homebase-{{env}}-{{color}}-{{homebase_region}}"
+    state: "present"
+    region: "{{reverse_envmapping[homebase_region]}}"
+    disable_rollback: true
+    template_body: "{{ lookup('file', '../cloudformation/HomeBaseR2D2StackCFN.yml' )}}"
+    template_parameters: 
+      EnvName: "{{env}}"
+      Color: "{{color}}"
+      HomeBaseVPC: "{{homebase_output['VPCId']}}"
+      CidrBlockR2D2Subnet: "10.{{homebase_vpc_num}}.{{homebase_color_subnet_num[color]}}.0/21"
+      KeyName: "{{keyname_logging}}"
+      AppStreamImageName: "{{fleet_appstream_image_name}}"
+
+# The egress regions depend on the colored homebase
+# Get the output from the CFN, so we can use it when building proxies and egress region
+- name: Get Homebase Color CFN info
+  cloudformation_info:
+    stack_name: "homebase-{{env}}-{{color}}-{{homebase_region}}"
+    region: "{{reverse_envmapping[homebase_region]}}"
+  register: homebase_color_cfn
+
+
+# Sets the cloudformation name, so we can filter the output 
+# the json of the output requires the name of it, and this 
+# makes the output filter simpler
+- set_fact:
+    homebase_color_cfn_name: "homebase-{{env}}-{{color}}-{{homebase_region}}"
+
+# Finally get the filtered output
+# using the above value to make this simpler and more readable
+- name: Set homebase color output
+  set_fact:
+    homebase_color_output: "{{homebase_color_cfn['cloudformation'][homebase_color_cfn_name]['stack_outputs']}}"
+
+# Can be removed once polish is applied, but keeping for debug reasons
+- debug:
+    var: homebase_color_output
+
+# loop over the egress stacks to make a proxy for each region
+# uses the region_list in the env file for each egress stack
+# metaphor: for each region in region list: run EgressStack.yaml(region)
+- include_tasks: "playbooks/EgressStack.yaml"
+  with_items: "{{region_list}}"

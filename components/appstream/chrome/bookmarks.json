@@ -1,0 +1,37 @@
+[
+    {
+        "toplevel_name": "Bookmarks"
+    },
+    {
+        "name": "Facebook",
+        "url": "https://facebook.com"
+    },
+    {
+        "name": "Find my Facebook ID",
+        "url": "https://findmyfbid.com/"
+    },
+    {
+        "name": "Twitter",
+        "url": "https://twitter.com/search"
+    },
+    {
+        "name": "Find my Twitter ID",
+        "url": "http://mytwitterid.com/"
+    },
+    {
+        "name": "Instagram",
+        "url": "https://www.instagram.com/search"
+    },
+    {
+        "name": "Google",
+        "url": "https://www.google.com"
+    },
+    {
+        "name": "Pipl",
+        "url": "https://pipl.com/"
+    },
+    {
+        "name": "Google Translate",
+        "url": "https://translate.google.com/"
+    }
+]

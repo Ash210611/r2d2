@@ -1,0 +1,371 @@
+# Resources
+
+# ProxyVPC
+#   The VPC where the egress region is hosted. Contains everything we create here.
+#   (Except for the InternetGateway)
+
+# ProxySubnet
+#   The subnet that will contain the proxy server. 
+
+# GatewaySubnet
+#   The subnet that contains the NAT Gateway. 
+
+# EIP
+#   The Elastic IP that gets attatched to the Nat Gateway
+
+# NatGateway
+#   The Nat Gateway. Needed in order to be able to rotate the 
+#   publicly viewable IP of the proxy server
+
+# InternetGateway
+#   The Internet Gateway. Allows connection to the internet.
+
+# VPCGatewayAttachment
+#   Attaches the Internet Gateway to the VPC
+
+# VPCPeeringConnection
+#   Peers the Homebase VPC with the Proxy VPC
+
+# ProxyRouteTable
+#   The route table that is attached to the ProxySubnet, 
+#   routes traffic to the NAT 
+
+# GatewayRouteTable
+#   The route table that is attached to the GatewaySubnet,
+#   routes traffic to the InternetGateway
+
+# AssosiateProxyRouteTable
+#   Puts the ProxyRouteTable on the ProxySubnet
+
+# AssosiateGatewayRouteTable
+#   Puts the GatewayRouteTable on the GatewaySubnet
+
+# RouteFromProxyToGateway
+#   Route attached to the ProxyRouteTable
+#   Routes traffic from Proxy to the Nat Gateway
+
+# RouteFromProxyToR2D2
+#   Route attached to ProxyRouteTable
+#   Routes traffic from the Proxy back to the homebase
+
+# RouteFromGatewayToInternet
+#   Route attached to the GatewaySubnet
+#   Routes traffic from the Nat Gateway to the InternetGateway
+
+# ProxySG
+#   Secrutity Group attatched to the proxy
+#   Only should let the Jumpbox in
+
+# ProxyInstance
+#   The EC2 Instance that actually houses the Squid Proxy
+
+
+
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  FormattedRegion:
+    Type: String
+    Description: nicely formatted region 
+  EnvName:
+    Type: String
+    Description: Env name (nonprod, public, prod)
+  Color:
+    Type: String
+    Description: Color of the Egress Region
+  CidrBlock:
+    Type: String
+    Description: CIDR block of the VPC
+  ProxyCidrBlock:
+    Type: String
+    Description: CIDR block of the Proxy Subnet
+  GatewayCidrBlock:
+    Type: String
+    Description: CIDR block of the Proxy Subnet
+  AppStreamVPC:
+    Type: String
+    Description: VPC Id of the AppStream VPC
+  AppStreamVPCRegion:
+    Type: String
+    Description: Region of the AppStream VPC
+  HomebaseVpcCidrBlock:
+    Type: String
+    Description: CIDR block of IP range to accept
+  HomebaseFleetCidrBlock:
+    Type: String
+    Description: CIDR block of IP range to accept
+  HomebaseJumpboxCidrBlock:
+    Type: String
+    Description: CIDR block of IP range to accept
+  ProxyImageId:
+    Type: AWS::EC2::Image::Id
+    Description: Image Id (CIS AWS Linux Lvl 1)
+  ProxyInstanceType:
+    Type: String
+    Description: The instance type
+  KeyName:
+    Type: String
+    Description: Name of the Key
+  IamInstanceProfile:
+    Type: String
+    Description: Name of the IamInstanceProfile
+  HostedZoneId:
+    Type: String
+    Description: ID of the HostedZone
+  S3Bucket:
+    Type: String
+    Description: Name of the S3 Bucket for config files
+# These maps may be able to be removed, since we have the mappings in the envmapping file
+Mappings:
+  RegionMap:
+    us-east-1: 
+      DisplayName: virginia
+    us-east-2: 
+      DisplayName: ohio
+    us-west-2: 
+      DisplayName: oregon
+    eu-west-1:
+      DisplayName: ireland
+    eu-west-2:
+      DisplayName: london
+    eu-west-3:
+      DisplayName: paris
+    eu-central-1:
+      DisplayName: frankfurt
+    ap-southeast-1:
+      DisplayName: singapore
+    ap-southeast-2:
+      DisplayName: sydney
+    ap-northeast-1:
+      DisplayName: tokyo
+    ap-northeast-2:
+      DisplayName: seoul
+    ap-south-1:
+      DisplayName: mumbai
+    ca-central-1:
+      DisplayName: montreal
+    us-west-1:
+      DisplayName: california
+    eu-north-1:
+      DisplayName: stockholm
+    sa-east-1:
+      DisplayName: saopaulo
+    me-south-1: 
+      DisplayName: bahrain
+    af-south-1: 
+      DisplayName: capetown
+    ap-northeast-3:
+      DisplayName: osaka
+    eu-south-1: 
+      DisplayName: milan
+    eu-south-2:
+      DisplayName: spain
+    eu-central-2: 
+      DisplayName: zurich
+    ap-southeast-3: 
+      DisplayName: jakarta
+    ap-south-2:
+      DisplayName: hyderabad
+    me-central-1: 
+      DisplayName: uae
+Resources:
+  ProxyVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref CidrBlock
+      EnableDnsHostnames: True
+      EnableDnsSupport: True
+      Tags:
+        - Key: "Name"
+          Value: !Sub
+            - "egressvpc_${EnvName}_${Region}_${Color}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  ProxySubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref ProxyCidrBlock
+      VpcId: !Ref ProxyVPC
+      Tags:
+        - Key: "Name"
+          Value: !Sub
+            - "proxysubnet_${EnvName}_${Region}_${Color}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  GatewaySubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref GatewayCidrBlock
+      VpcId: !Ref ProxyVPC
+      Tags:
+        - Key: "Name"
+          Value: !Sub
+            - "gatewaysubnet_${EnvName}_${Region}_${Color}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - EIP
+          - AllocationId
+      SubnetId: !Ref GatewaySubnet
+      Tags:
+        - Key: "Name"
+          Value: !Sub
+            - "natgateway_${EnvName}_${Region}_${Color}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: !Sub
+            - "internetgateway_${EnvName}_${Region}_${Color}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref ProxyVPC
+  VPCPeeringConnection:
+    Type: AWS::EC2::VPCPeeringConnection
+    Properties:
+      VpcId: !Ref ProxyVPC
+      PeerVpcId: !Ref AppStreamVPC
+      PeerRegion: !Ref AppStreamVPCRegion
+      Tags:
+        - Key: "Name"
+          Value: !Sub
+            - "peering_${EnvName}_${Region}_${Color}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  ProxyRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref ProxyVPC
+      Tags:
+        - Key: "Name"
+          Value: !Sub
+            - "egressroutetable_${EnvName}_${Region}_${Color}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  GatewayRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref ProxyVPC
+      Tags:
+        - Key: "Name"
+          Value: !Sub
+            - "gatewayroutetable_${EnvName}_${Region}_${Color}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  AssosiateProxyRouteTable:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref ProxySubnet
+      RouteTableId: !Ref ProxyRouteTable
+  AssosiateGatewayRouteTable:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref GatewaySubnet
+      RouteTableId: !Ref GatewayRouteTable
+  RouteFromProxyToGateway:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+      RouteTableId: !Ref ProxyRouteTable
+  RouteFromProxyToR2D2:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: !Ref HomebaseVpcCidrBlock
+      VpcPeeringConnectionId: !Ref VPCPeeringConnection
+      RouteTableId: !Ref ProxyRouteTable
+  RouteFromGatewayToInternet:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref GatewayRouteTable
+  ProxySG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SG for EC2 Proxy
+      GroupName: ProxySG
+      VpcId: !Ref ProxyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3128
+          ToPort: 3128
+          CidrIp: !Ref HomebaseFleetCidrBlock
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref HomebaseJumpboxCidrBlock
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub
+            - "proxysg_${EnvName}_${Region}_${Color}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  ProxyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ProxyImageId
+      InstanceType: !Ref ProxyInstanceType
+      KeyName: !Ref KeyName
+      IamInstanceProfile: !Ref IamInstanceProfile
+      SecurityGroupIds:
+        - !Ref ProxySG
+      SubnetId: !Ref ProxySubnet
+      Tags:
+        - Key: "Name"
+          Value: !Sub
+            - "proxy_${EnvName}_${Region}_${Color}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+        - Key: "ECS:ServerFunction"
+          Value: "SQUID_PROXY"
+        - Key: "ECS:System"
+          Value: "IRNSD/FDNS-DS-NexGen"
+        - Key: "ECS:FismaId"
+          Value: "CIS-08314-MAJ-08314"
+        - Key: "ECS:Environment"
+          Value: "Prod"
+        #   when: EnvName == 'nonprod'
+        # - Key: "ECS:Environment"
+        #   Value: "Prod"
+        #   when: EnvName == 'prod'
+        - Key: "ECS:Poc"
+          Value: "scott.e.purnell-saunders@uscis.dhs.gov"
+        - Key: "ECS:Scheduler:ec2-startstop"
+          Value: "default"
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          sudo yum update -y 
+          echo "proxy_${FormattedRegion}" > /etc/hostname
+          iptables -A INPUT -i eth0 -s ${HomebaseVpcCidrBlock} -j ACCEPT
+          service iptables save
+          yum -y install jq squid
+          mv /etc/squid/squid.conf /etc/squid/squid.conf.bak
+          aws s3 cp s3://${S3Bucket}/squid.conf /etc/squid/squid.conf
+          systemctl start squid
+          sudo chkconfig --level 3 squid on
+          aws s3 cp s3://r2d2-binaries-prod/splunkforwarder-8.2.1-ddff1c41e5cf-linux-2.6-x86_64.rpm .
+          sleep 30
+          sudo yum -y install ./$(ls splunkforwarder*)
+          aws s3 cp s3://${S3Bucket}/user-seed.conf "/opt/splunkforwarder/etc/system/local/user-seed.conf"
+          aws s3 cp s3://${S3Bucket}/inputs.conf "/opt/splunkforwarder/etc/system/local/inputs.conf"
+          aws s3 cp s3://${S3Bucket}/outputs.conf "/opt/splunkforwarder/etc/system/local/outputs.conf"
+          /opt/splunkforwarder/bin/splunk start --accept-license
+          /opt/splunkforwarder/bin/splunk enable boot-start
+          aws s3 cp s3://${S3Bucket}/route53dns.json ./route53dns.json
+          region=$(curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.region')
+          privateIp=$(curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.privateIp')
+          sed -e "s/\${!region}/${!region}/" -e "s/\${!privateIp}/${!privateIp}/" route53dns.json > temp.json
+          aws route53 change-resource-record-sets --hosted-zone-id ${HostedZoneId} --change-batch file://temp.json
+          reboot
+Outputs:
+  GatewaySubnet:
+    Value: !Ref GatewaySubnet
+  VpcPeeringConnectionId:
+    Value: !Ref VPCPeeringConnection

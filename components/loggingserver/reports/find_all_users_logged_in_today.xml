@@ -1,0 +1,27 @@
+<dashboard>
+  <label>Find all User logged in today</label>
+  <row>
+    <panel>
+      <title>User Traffic</title>
+      <table>
+        <search>
+          <query>sourcetype="appstream_session" 
+| dedup UserId  sortby - _time
+| table UserId, FleetName, _time
+| sort UserId</query>
+          <earliest>-1d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>

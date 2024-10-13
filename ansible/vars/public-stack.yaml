@@ -1,0 +1,42 @@
+---
+env:                          "publicstack"
+homebase_region:              "virginia"
+homebase_cfn_name:            "homebase-{{env}}-{{homebase_region}}"
+homebase_vpc_num:             "40"
+logging_size:                 "m5.large"
+keyname_logging:              "r2d2-nonprod"
+keyname_proxy:                "r2d2-nonprod"
+hardened_image_id:            "ami-0ca8f41929d82401c"
+base_appstream_image_name:    "AppStream-WinServer2019-09-18-2019"
+fleet_appstream_image_name:   "AppStream-WinServer2019-09-18-2019"
+hosted_zone_name:             "r2d2hostedzone"
+s3_config_bucket:             "r2d2-configuration"
+proxy_size:                   "t2.micro"
+iam_profile:                  "ProxyRole"
+lambda_role:                  "arn:aws:iam::776171595951:role/IProtate_Role"
+homebase_color_subnet_num:
+  blue:  4
+  green: 5
+  none:  6
+region_list:
+  - name:     virginia
+    vpc_num:  41
+  - name:     oregon
+    vpc_num:  42
+s3_files:
+  - name: route53dns.json
+    path: components/squidproxy/config/route53dns.json
+  - name: user-seed.conf
+    path: components/squidproxy/config/user-seed.conf
+  - name: squid.conf
+    path: components/squidproxy/config/squid.conf
+  - name: inputs.conf
+    path: components/squidproxy/config/inputs.conf
+  - name: outputs.conf
+    path: components/squidproxy/config/outputs.conf
+s3_replacement:
+  - varName:  __APPSTREAMSOURCE__
+    value:    "10.{{homebase_vpc_num}}.{{homebase_color_subnet_num[color]}}.0/24"
+  - varName:  __HOSTEDZONENAME__
+    value:    "{{hosted_zone_name}}"
+

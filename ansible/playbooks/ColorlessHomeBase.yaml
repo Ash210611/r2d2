@@ -1,0 +1,25 @@
+---
+# Called by the deploy.yaml
+# Since this is the base on which everything else depends,
+# there is no need to gather any information
+# So all we have to do is call the cloudformation
+# No other setup or post setup necessary 
+- name: ColorlessArchitecture
+  cloudformation:
+    stack_name: "{{homebase_cfn_name}}"
+    state: "present"
+    region: "{{reverse_envmapping[homebase_region]}}"
+    disable_rollback: true
+    template_body: "{{ lookup('file', '../cloudformation/HomeBaseColorlessInfrastructureCFN.yml' )}}"
+    template_parameters: 
+      EnvName:                    "{{env}}"
+      CidrBlockVPC:               "10.{{homebase_vpc_num}}.0.0/16"
+      CidrBlockBuilderSubnet:     "10.{{homebase_vpc_num}}.1.0/24"
+      CidrBlockLoggingSubnet:     "10.{{homebase_vpc_num}}.2.0/24"
+      CidrBlockJumpboxSubnet:     "10.{{homebase_vpc_num}}.3.0/24"
+      LoggingInstanceType:        "{{logging_size}}"
+      KeyName:                    "{{keyname_logging}}"
+      LoggingImageId:             "{{hardened_image_id}}"
+      AppStreamBuilderImageName:  "{{base_appstream_image_name}}"
+      AppStreamJumpboxImageName:  "{{base_appstream_image_name}}"
+      HostedZoneName:             "{{hosted_zone_name}}"

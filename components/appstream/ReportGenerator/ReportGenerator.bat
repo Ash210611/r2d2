@@ -1,0 +1,1 @@
+Powershell.exe -executionpolicy bypass -WindowStyle Hidden -File "C:\ReportGenerator\ReportGui.ps1"

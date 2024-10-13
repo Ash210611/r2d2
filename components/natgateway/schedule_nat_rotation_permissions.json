@@ -1,0 +1,26 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Logging",
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "arn:aws:logs:us-west-2:776171595951:log-group:/aws/lambda/ScheduleIPRotate:*"
+        },
+        {
+            "Sid": "PutRule",
+            "Effect": "Allow",
+            "Action": "events:PutRule",
+            "Resource": "*"
+        },
+        {
+            "Sid": "Logging2",
+            "Effect": "Allow",
+            "Action": "logs:CreateLogGroup",
+            "Resource": "arn:aws:logs:us-west-2:776171595951:*"
+        }
+    ]
+}

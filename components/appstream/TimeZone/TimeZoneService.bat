@@ -1,0 +1,1 @@
+Powershell.exe -executionpolicy bypass -File  "C:\AutoConfig\TimeZoneService.ps1"

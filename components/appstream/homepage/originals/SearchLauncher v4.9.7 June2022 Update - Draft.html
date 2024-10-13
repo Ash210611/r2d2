@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="utf-8">
+	<title>Homepage Launcher</title>
+
+	<!-- SYTLE SECTION: sets formatting for collapsable yellow box bar, extra info buttons, and updates section-->
+
+<style>
+	.h2 {
+		margin-top: 0;
+		margin-bottom: -5px;
+		padding: 0;
+		}
+
+	.updatescol {
+	  background-color: #e9e9e9;
+	  color: rgba(0, 0, 0, 0.986);
+	  cursor: pointer;
+	  padding: 5px;
+	  width: 100%;
+	  border: none;
+	  text-align: center;
+	  outline: none;
+	  font-size: 15px;
+	}
+	.active, .updatescol:hover {
+	  background-color: rgb(151, 151, 151);
+	  color: rgb(255, 255, 255);
+	}
+	.updatesexpander {
+	  padding: 0 18px;
+	  max-height: 0;
+	  overflow: hidden;
+	  transition: max-height 0.3s ease-out;
+	}
+	
+	.tooltip {
+		position: absolute;
+		display: inline;
+	}
+	.tooltip .tiptext {
+		position: absolute;
+		display: inline;
+  		border: 3px solid rgb(144, 137, 248);
+		color:rgb(76, 19, 114);
+        border-radius: 10px;
+        font-size: xx-small;
+	}
+	.tooltip .tooltiptext {
+		position: absolute;
+		visibility: hidden;
+        background-color: rgb(76, 19, 114);
+		color: #fff;
+		text-align: center;
+		border-radius: 2px;
+		padding: 1px 1px;
+	}
+
+	.tooltip:hover .tooltiptext {
+		visibility: visible;
+        min-width: 350px;
+        float: right;
+        Left: 20px;
+        bottom: 5px;
+	}
+</style>
+</head>
+<!-- JAVASCRIPT FOR 3 PRIMARY SEARCH BOXES-->
+	<script type="text/javascript">
+
+		//NAME SEASRCH. It simply takes the name as written and runs it against the following sites. 
+		function nameSearch(all) {
+                event.preventDefault();
+				var facebookns = document.getElementById('addfacebookNS');
+				var googlens = document.getElementById('addgoogleNS');
+				var youtubens = document.getElementById('addyoutubeNS');	
+				var twitterns = document.getElementById('addtwitterNS');	
+				var imginnns = document.getElementById('addimginnNS');
+				var sweetagramns = document.getElementById('addsweetaNS');
+				var pixwoxns = document.getElementById('addpixwoxNS');
+               
+				var tiktokns = document.getElementById('addtiktokNS');
+				//var picuki = document.getElementById('addpicukiNS');
+				//var gramhir = document.getElementById('addgramhirNS');	
+				
+				
+				if (facebookns.checked) {window.open('https://www.facebook.com/public?query=' + all, 'facebook')};
+				if (googlens.checked) {window.open('https://www.google.com/search?&hl=en-us&q="' + all + '"', 'google')};
+				if (youtubens.checked) {window.open('https://www.youtube.com/results?search_query=' + all + "&sp=EgIQAg%253D%253D", 'youtube')};
+				if (twitterns.checked) {window.open('https://www.twitter.com/search?q=' + all +'&f=user', 'twitter')};
+				if (imginnns.checked) {window.open('https://www.imginn.org/search/?q=' + all, 'imginn')};	
+				if (sweetagramns.checked) {window.open('https://www.sweetagram.com/search/s/#' + all, 'sweetagram')};
+				if (pixwoxns.checked) {window.open('https://www.pixwox.com/search/?q=' + all, 'pixwox')};
+               
+				if (tiktokns.checked) {window.open('https://www.tiktok.com/search/user?lang=en&q=' + all, 'tiktok')};
+				//if (imginn.checked) {window.open('https://www.imginn.com/search/?q=' + all, 'imginnnamechk')};
+				//if (gramhir.checked) {window.open('https://www.gramhir.com/search/' + all, 'ignc2')};
+				//if (picuki.checked) {window.open('https://www.picuki.com/search/' + all, 'ignc3')};	
+			}
+			
+		//EMAIL SEARCH FUNCTION. This function runs the whole email address against several sources (using the "inEmail" variable), and just the username against others (using the "hand" variable). ADDED "USERNAME" BUTTON (if/else logic). 
+		function searchEmail(inEmail) {
+			event.preventDefault();
+			var atPosition;
+			var stringLength;
+			var username;
+			var domain;
+			var sEmails = inEmail.split("@");
+			var hand = sEmails[0];
+			var domain = sEmails[1];
+           
+			var usernameview = document.getElementById('usernameview');
+			var googleem = document.getElementById('addgoogleEM');
+			var facebookem = document.getElementById('addfacebookEM');
+			var youtubeem = document.getElementById('addyoutubeEM');
+			var twitterem = document.getElementById('addtwitterEM');
+			var imginnem = document.getElementById('addimginnEM');
+			var sweetagramem = document.getElementById('addsweetaEM');
+			var pixwoxem = document.getElementById('addpixwoxEM');
+
+            var tiktokem = document.getElementById('addtiktokEM');
+			//var imginnem = document.getElementById ('addimginnEM');
+			//var picukiem = document.getElementById('addpicukiEM');
+			//var gramhirem = document.getElementById('addgramhirEM');
+
+			if (usernameview.checked) {
+				//This is the query against just the handle:
+                if (googleem.checked){window.open('https://www.google.com/search?q="' + hand + '"&hl=en-us', 'google')}
+				} 
+			else {
+                //These are the google queries against the whole email address:
+                if (googleem.checked) 
+                    {window.open('https://google.com/search?&hl=en-us&q="' + inEmail + '"', 'googlef')}; 
+                    {window.open('https://www.google.com/search?&hl=en-us&q="' + hand + '"', 'google')};
+				};
+			
+			if (facebookem.checked) {window.open('https://www.facebook.com/public?query=' + hand, 'facebook')};		
+			if (youtubeem.checked) 	{window.open('https://www.youtube.com/results?search_query=' + hand + "&sp=EgIQAg%253D%253D", 'youtube')};	
+			if (twitterem.checked) 	{window.open('https://www.twitter.com/search?q=' + hand + '&src=typed_query&f=user', 'twitter')};		
+			if (imginnem.checked)	{window.open('https://www.imginn.org/search/?q=' + hand, 'imginn')};
+			if (sweetaem.checked)	{window.open('https://www.sweetagram.com/search/s/#' + all, 'sweetagram')};
+			if (pixwoxem.checked)	{window.open('https://www.pixwox.com/search/?q=' + all, 'pixwox')};
+            
+			if (tiktokem.checked) 	{window.open('https://www.tiktok.com/search/user?lang=en&q=' + hand, 'tiktok')};	
+			//if (imginnem.checked)	{window.open('https://www.imginn.com/search/?q=' + hand, 'imginnwinEM')};	
+			//if (gramhirem.checked) 	{window.open('https://www.gramhir.com/search/' + hand, 'igec1')};	
+			//if (picukiem.checked) 	{window.open('https://www.picuki.com/search/' + hand, 'igec2')};			
+        }
+		
+		//PHONE SEARCH FUNCTION.
+		function phoneSearch(all) {
+            event.preventDefault();
+            window.open('https://www.google.com/search?&hl=en-us&q="' + all + '"', 'google');
+		}
+
+		//THIS SCRIPT CONTROLS THE CUSTOM SEARCHBOX
+		function customSearch(all) {
+            event.preventDefault();
+			var csttiktok = document.getElementById('csttiktokchk');
+			var cstvk = document.getElementById('cstvkchk');
+			var cstok = document.getElementById('cstokchk');
+			var redditusrnm = document.getElementById('redditusrnm');
+			var googreddit = document.getElementById('googreddit');
+            var soundcloud = document.getElementById('custsndcld');
+			var weibos = document.getElementById('weibo');
+
+			var facebook = document.getElementById('custfb');
+			var facebookm = document.getElementById('custfbm');
+			var googlefb = document.getElementById('googfb');
+		
+			var cimginn = document.getElementById('custimginn');
+            var csweeta = document.getElementById('custsweeta');
+			var cpixwox = document.getElementById('custpixwox');
+            var cgramhir = document.getElementById('custgramhir');
+			var cpicuki = document.getElementById('custpicuki');
+            
+			var googig = document.getElementById('custgoogig');
+			var googimgig = document.getElementById('custgoogigimg');
+		
+			var custgoogle = document.getElementById('cgoogle');
+			var googimg = document.getElementById('custgoogim');
+
+			var twitterpro = document.getElementById('custtwpro');
+			var googtw = document.getElementById('custgoogtw');
+			var twittergeo = document.getElementById('custtwgeo');
+
+			var youtubech = document.getElementById('custytch');
+			var youtubevi = document.getElementById('custytvi');
+			
+
+			// PREVIOUS LINKS LOGIC
+			//var cimginn = document.getElementById('custimginn');	
+			//var pipl = document.getElementById('custpip');
+			//var gramuser = document.getElementById('gramuser');
+            //var gramfind = document.getElementById('gramfind');
+            //var gramfly = document.getElementById('gramfly');
+            //var gramseek = document.getElementById('gramseek');
+            //var gramreport = document.getElementById('gramreport');
+			//var searchusersig = document.getElementById('searchusers');
+            //var webstagram = document.getElementById('custwebsta');							
+			
+			if (csttiktok.checked) {window.open('https://www.tiktok.com/search/user?lang=en&q=' + all, 'tiktokcust')};
+			if (cstvk.checked) {window.open('https://www.vk.com/search?c[section]=auto&c[q]=' + all, 'vkcust')};
+			if (cstok.checked) {window.open('https://www.ok.ru/search/profiles/' + all, 'okcust')};	
+			if (redditusrnm.checked) {window.open('https://www.reddit.com/r/' + all, 'redditusrnm')};
+			if (googreddit.checked) {window.open('https://www.google.com/search?q=site%3Areddit.com ' + all, 'googreddit')};
+            if (soundcloud.checked) {window.open('https://www.soundcloud.com/search?q=' + all, 'custsndcld')};
+			if (weibos.checked) {window.open('https://s.weibo.com/weibo?q=' + all +'&Refer=index', 'weibowin')};
+
+			if (facebook.checked) {window.open('https://www.facebook.com/public?query=' + all, 'custfb')};
+			if (facebookm.checked) {window.open('https://m.facebook.com/public/' + all, 'custfbm')};
+			if (googfb.checked) {window.open('https://google.com/search?q=site%3Afacebook.com+' + all, 'fbgoogw')};
+			
+			if (cimginn.checked) {window.open('https://www.imginn.org/search/?q=' + all, 'custimginn')};
+			if (csweeta.checked) {window.open('https://www.sweetagram.com/search/s/#' + all,  'custsweeta')};
+			if (cpixwox.checked) {window.open('https://www.pixwox.com/search/?q=' + all, 'custpixwox')};
+
+			if (cpicuki.checked) window.open('https://www.picuki.com/search/' + all, 'picukicust');
+            if (cgramhir.checked) {window.open('https://www.gramhir.com/search/' + all, 'custgramhir')};
+			if (googig.checked) {window.open('https://www.google.com/search?q=site%3Ainstagram.com+' + all, 'custgoogig')};
+			if (googimgig.checked) {window.open('https://www.google.com/search?q=site%3Ainstagram.com+' + all + '&hl=en-us&source=lnms&tbm=isch', 'ggligtab')};
+            
+			if (custgoogle.checked) {window.open('https://www.google.com/search?q=' + all, 'custgoogle')};	
+			if (googimg.checked) {window.open('https://www.google.com/search?q=' + all + '&tbm=isch&gws_rd=ssl', 'custgoogim')};
+
+			if (twitterpro.checked) {window.open('https://www.twitter.com/search?q=' + all +'&src=typed_query&f=user', 'custtwpro')};
+			if (twittergeo.checked) {window.open('https://www.twitter.com/search?q=' + all +'&src=typed_query&f=user&lf=on', 'custtwgeo')};
+			if (googtw.checked) {window.open('https://www.google.com/search?q=site%3Atwitter.com+' + all, 'custgoogtw')};
+
+			if (youtubech.checked) {window.open('https://www.youtube.com/results?search_query=' + all + "&sp=EgIQAg%253D%253D", 'custytch')};
+			if (youtubevi.checked) {window.open('https://www.youtube.com/results?search_query=' + all + "&sp=EgIQAQ%253D%253D", 'custytvi')};
+
+			//PREVIOUS LINKS: RULE SET 
+			//if (cimginn.checked) {window.open('https://www.imginn.com/search/?q=' + all, 'imginncust')};
+			//if (searchusersig.checked) {window.open('https://searchusers.com/search/' + all, 'custsearchusers')};
+            //if (gramuser.checked) {window.open('https://gramuser.com/search/' + all, 'custgramuser')};
+			//if (gramfind.checked) {window.open('https://gramfind.com/s/' + all, 'custgramfind')};
+			
+            }
+</script>
+ <!--//END OF JAVASCRIPTING-->
+
+<body>	
+	<img src="FDNS_R2D2_1000x250_V15.png" alt="R2D2 LOGO" height="125" width="500" style="
+		position:relative; 
+		left:2px;
+		top: 21px" ALIGN=”left” /> 
+		<span id="ProxyLocation" style=
+			"color:#FF0000;
+			font-size: xx-large;
+			border: 5px solid red;
+			padding: 10px;
+			margin: 10px;
+			position:relative;
+			align-items: center;
+			left:100px">
+			Current Egress is: 
+		</span>
+<h1 style=
+		"color:#14a2d1;
+		position:relative;left:24px"><i>FDNS Search Launcher Homepage</i>
+	</h1>
+
+<div style=
+		"position: relative;
+		 left: 90px;
+		 top: 3px;
+		 width: 83%;
+		 border: 1px rgb(255, 0, 0) solid;
+		 padding: 5px;
+		 background-color: rgb(252, 227, 227);">
+        <button class="updatescol"
+                style="background-color: rgb(245, 164, 164)">
+                <u><b>View Reminders</b></u></button>	
+        <div class="updatesexpander">
+       
+        <b>Reminders:</b>
+        <ul>
+
+            <li>All required platform searches for each selector <u>must be documented</u> for a completed SM check. Screenshots must also include the URL of the SM site, and a date and time stamp. </li>
+            <li>Follow proper referral process for logged-in checks by Assistors based on current guidance and platform behaviors. If a platform does not display overt search results, please take one screenshot (per screenshot document) of the "log-in screen" for that site before requesting logged-in assistance.
+                <div class="tooltip"> 
+                    <span class="tiptext"><b>❖</b></span> 
+                    <span class="tooltiptext">Please try refreshing results and changing browsers first to troubleshoot the problem.It is not necessary to refresh or change browsers for known platform behavior, like Facebook's log-in screen.</span>
+            </li>
+
+            <li>All results for Information of Interest from third-party sites must be captured from original site. (<i>ex</i>, fraud found on IG account XYZ on Picuki must have an original screenshot of www.instagram.com/XYZ and the original post/content).</li>
+            <li>Follow all Standard Operating Procedures (SOPs) and oversight guidance while using this tool.</li>
+            <li>This tool is only to be used for conducting social media checks with no exception for <u>any</u> personal browsing.</li>
+            <li>R2D2 logs user web traffic history and may be audited. Officers will have access revoked without warning for violations of the Rules of Behavior.</li> 
+
+        </ul>
+        </div> 
+</div>
+ 
+<!-- MAIN THREE SEARCH BOXES -->
+
+    <div style=
+		 "min-width: 450px;
+		  width: 90%;
+          border: 4px rgb(0, 110, 255) solid;
+          padding: 10px 10px;
+		  position: relative;
+		  left: 45px;
+		  top: 10px;
+          margin: 20px 0;
+		  background-color: #a5d7ee;
+		  border-radius: 25px;">
+
+<h2 style="font-size:150%;margin-top:0px;margin-bottom:-3px"><u>Required Platform Searches</u>:</b></h2><br>
+    <b><u>Name Search</u>:</b> This field searches any platforms which you select below. Google searches uses the name <i>exactly</i> as typed.<br>
+        <form onsubmit="nameSearch(this.all.value); return false;"> 
+            <input type="text" name="all" id="ipall" size="40" value="">
+            <input type="submit" style="width:120px" value="Search Name"> 	
+            <br>
+
+			<input type="checkbox" id="addgoogleNS" class="checkitem" checked> Add Google |
+			<input type="checkbox" id="addtwitterNS" class="checkitem" checked> Add Twitter |
+			<input type="checkbox" id="addyoutubeNS" class="checkitem" checked> Add YouTube |
+        	<input type="checkbox" id="addfacebookNS" class="checkitem"> Add Facebook | 	
+                <div class="tooltip"> <span class="tiptext"><b> (❖) </b></span> <span class="tooltiptext"> SMD will provide updates when FB results become widely accessible again. "Assisted by" help in DS from your designated Assistor is required for all complete social media checks. Please take <u>one</u> screenshot of the "FB log-in screen" search results before requesting help from an Assistor.</span></div> 
+			<br>	
+			<input type="checkbox" id="addimginnNS" class="checkitem" checked> Add ImgInn (IG) |
+			<input type="checkbox" id="addsweetaNS" class="checkitem"> Add Sweetagram (IG) |
+			<input type="checkbox" id="addpixwoxNS" class="checkitem"> Add PixWox (IG)|       
+			<div class="tooltip"> <span class="tiptext"><b> (❖) </b></span> <span class="tooltiptext"> One third-party IG site is required for compete social media check. If the search results fail to load properly, refreshing the page may show results. If none of these 3rd-party IG sites are working, help from an Assistor should be requested. </span></div>
+			<br>
+
+			
+			<input type="checkbox" id="addtiktokNS" class="checkitem">  Add TikTok (TK) (<i>Optional platform</i>) 
+			<br>
+                <!-- <div class="tooltip"> <span class="tiptext"><b>*</b></span> <span class="tooltiptext"> SM checks completed between 12/01/2021 and 12/31/2021 should include the platform TikTok in checks.</span></div> -->
+            
+            
+
+            <!--<input type="checkbox" id="addimginnNS" class="checkitem">Add ImgInn (IG) [NO LONGER WORKING 7/20/21]-->
+        </form>
+        <br>
+
+
+    <b><u>Email Address / Username Searches</u>:</b> This field searches any platforms which you select below. Full searches include Google for <i>exact</i> email addresses ("Abc123@Xyz.com"). Usernames or email prefixes ("Abc123") are searched on all platforms selected. 
+        <form onsubmit="searchEmail(this.all.value); return false;">
+            <input type="text" name="all" id="ipall" size="40" value="">
+            <input type="submit" style="width:160px" value="Search Email/Username">
+            <br>
+            
+            <input type="checkbox" id="usernameview" class="checkitem"><i>Handle/Screenname search only</i>
+            <br> 
+
+            <input type="checkbox" id="addgoogleEM" class="checkitem" checked> Add Google | 
+            <input type="checkbox" id="addtwitterEM" class="checkitem" checked> Add Twitter | 
+			<input type="checkbox" id="addyoutubeEM" class="checkitem" checked> Add YouTube | 
+			<input type="checkbox" id="addfacebookEM" class="checkitem"> Add Facebook | 
+			<div class="tooltip"> <span class="tiptext"><b> (❖) </b></span> <span class="tooltiptext"> <i>See FB note above.</i></span></div> 
+			<br>
+			
+            <input type="checkbox" id="addimginnEM" class="checkitem" checked> Add ImgInn (IG) |
+			<input type="checkbox" id="addsweetaEM class="checkitem"> Add Sweetagram (IG) |
+			<input type="checkbox" id="addpixwoxEM" class="checkitem"> Add PixWox (IG) |               
+			<div class="tooltip"> <span class="tiptext"><b> (❖) </b></span> <span class="tooltiptext"> If the search results fail to load properly, refreshing the page may show results. As with all required platforms, IG platform <i>must</i> be searched. If all 3rd-party IG tools are not working, a logged-in request check of all required selectors is available from Assistors. </span></div>
+			<br>
+
+
+        
+            <input type="checkbox" id="addtiktokEM" class="checkitem"> Add TikTok (TK) (<i>Optional platform</i>)
+        </form>
+        <br>
+			
+	<b><u>Phone Number Search</u>:</b> This field searches Google <i>exactly</i> as typed.<br>
+		<form onsubmit="phoneSearch(this.all.value); return false;">
+			<input type="text" name="all" id="ipall" size="40" value="">
+			<input type="submit" style="width:120px" value="Search Phone #">
+		</form>
+        <br>
+  
+   <center>
+</div>
+
+<!-- STYLE FOR CUSTOM YELLOW BOX-->
+    <style>
+        .collapsible {
+          background-color: #eeff07;
+          color: #ff6600;
+          cursor: pointer;
+          padding: 5px;
+          max-width: 60%;
+		  min-width: 30%;
+		  border-radius: 25px;
+          text-align: center;
+          outline: none;
+          font-size: 15px;
+        }
+        
+        .active, .collapsible:hover {
+          background-color: #000000;
+          color: #ffffff;
+        }
+        
+        .content {
+          padding: 0 18px;
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.5s ease-out;
+          background-color: #f0fab2;
+        }
+    </style>
+
+
+<!-- CUSTOM SEARCH BOX -->
+<div style=
+        "min-width: 450px;
+        width: 90%;
+        border: 4px #e5ff00ec solid;
+        padding: 10px 10px;
+        position: relative;
+        left: 45px;
+        top: 10px;
+        margin: 20px 0;
+        background-color: #f0fab2;
+		border-radius: 25px">
+
+	<h2 style="font-size:150%;margin-top:0px;margin-bottom:-3px"><u>Customized/Additional Searches</u>:</h2> <br>
+	This search bar will run selectors against individually checked platforms. These checkboxes will re-use windows between searches, same as the boxes above. There is no need to close tabs to run new selectors.		
+
+	<!-- CHECK BOXES / PLATFORMS -->
+		<br><button class="collapsible"><u><b>Additional optional platforms</b></u></button>
+		<div class="content">
+			<div class="container" style="margin:10px auto;max-height:100%">
+                
+				<p><div class="checkbox"> 
+				<b>Suggested selectors for use with other platforms: <i>Names, aliases, usernames, </i> and <i>email prefixes</i></b><br>				
+				
+				<input type="checkbox" id="csttiktokchk" class="checkitem"> TikTok (<i>popular short video platform</i>)<br>	
+				<input type="checkbox" id="cstvkchk" class="checkitem"> V Kontakte / VK (<i>common platform among Russian & post-Soviet republics in Eurasia</i>)<br>
+				<input type="checkbox" id="cstokchk" class="checkitem"> Odnoklassniki / OK (<i>Russian-language social media platform designed for classmates</i>)<br>
+				<input type="checkbox" id="redditusrnm" class="checkitem"> Reddit Username (<i>direct URL for usernames only</i>)<br>
+				<input type="checkbox" id="googreddit" class="checkitem"> Google Search of Reddit (<i>posts and comment threads on wide range of topics</i>)<br>
+				<input type="checkbox" id="custsndcld" class="checkitem"> Soundcloud (<i>social streaming service that is commonly used by musicians</i>)<br>
+				<input type="checkbox" id="weibo" class="checkitem"> Weibo (<i>microblogging Chinese-language website</i>)<br>				
+			</p>
+		</div></div></div>
+	
+		<br><button class="collapsible"><u><b>Variations of Core 5 Platforms</b></u></button>
+		<div class="content">
+		<div class="container" style="margin:10px auto;">
+
+			<p>
+				<b>Facebook Searches</b>:	<i>Names and variations, aliases, email prefixes, SM handles, and narrowing information.</i><br>
+				<input type="checkbox" id="custfb" class="checkitem"> Facebook (main)<br>
+				<input type="checkbox" id="custfbm" class="checkitem"> Facebook Mobile<br>
+				<input type="checkbox" id="googfb" class="checkitem"> Google search of Facebook<br>
+			</p>
+
+			<p>
+			<b> Instagram Searches</b>: <i>Names and variations, aliases, email prefixes, and SM handles.</i><br>
+			<input type="checkbox" id="custimginn" class="checkitem"> ImgInn<br>
+			<input type="checkbox" id="custsweeta" class="checkitem"> Sweetagram <br>
+			<input type="checkbox" id="custpixwox" class="checkitem"> PixWox <br>
+			<input type="checkbox" id="custgoogig" class="checkitem"> Google search of Instagram<br>
+			<input type="checkbox" id="custgoogigimg" class="checkitem"> Google Image search of Instagram<br>
+			<input type="checkbox" id="custpicuki" class="checkitem"> Picuki (<i>may no longer be functional</i>)<br>
+			<input type="checkbox" id="custgramhir" class="checkitem"> Gramhir (<i>may no longer be functional</i>)<br>
+			</p>
+
+				<p>
+				<b>Google Searches</b>: <i>All selectors.</i><br>
+				<input type="checkbox" id="cgoogle" class="checkitem"> Google<br>
+				<input type="checkbox" id="custgoogim" class="checkitem"> Google Images search<br>
+			</p>
+
+			<p>
+				<b>Twitter Searches</b>: <i>Names and variations, aliases, email prefixes, and SM handles.</i><br>
+				<input type="checkbox" id="custtwpro" class="checkitem"> Twitter profiles<br>
+				<input type="checkbox" id="custtwgeo" class="checkitem"> Twitter (from nearby location based on R2D2 geographic egress point)<br>
+				<input type="checkbox" id="custgoogtw" class="checkitem"> Google search of Twitter <br>
+			</p>  
+
+			<p>
+				<b>YouTube Searches</b>: <i>Names and variations, aliases, email prefixes, and SM handles.	</i><br>
+				<input type="checkbox" id="custytch" class="checkitem"> YouTube Channels (profiles)<br>
+				<input type="checkbox" id="custytvi" class="checkitem"> YouTube (all videos) <br>
+			</p>
+		</div></div> <br>
+	    <form onsubmit="customSearch(this.all.value); return false;">
+        <input type="text" name="all" id="ipall" size="40" value="">
+        <input type="submit" style="width:120px" value="Search Selector">
+	</form>
+<!-- END OF CONTENTS OF CUSTOM YELLOW BOX-->
+
+<!-- THIS SCRIPT CONTROLS DROP DOWN BOX IN CUST YELLOW BOX -->           	
+    <script>
+		var coll = document.getElementsByClassName("collapsible");
+		var i;
+		for (i = 0; i < coll.length; i++) {
+		  coll[i].addEventListener("click", function() {
+			this.classList.toggle("active");
+			var content = this.nextElementSibling;
+			if (content.style.maxHeight){
+			  content.style.maxHeight = null;
+			} else {
+			  content.style.maxHeight = content.scrollHeight + "px";
+			} 
+		  });
+		}
+    </script>
+</div></div>
+ 
+
+
+<!--Now I am putting in "FIND ID TOOLS" as it's own box.-->
+<div style=
+	"min-width: 450px;
+	width: 90%;
+	padding: 10px 10px;
+	border: 4px rgb(0, 109, 13) solid;
+	position: relative;
+    left: 45px;
+    top: 10px;
+    margin: 20px 0;
+	background-color: #bef09d;
+	border-radius: 25px;
+	line-height: 133%;">
+	<h2 style="font-size:150%;margin-top:0px;margin-bottom:-3px"><u>Confirmed Account Tools</u>:</h2><br>   
+     These are links and terms to find unique IDs related to a Subject's confirmed account on different social media platforms.
+   <ul>
+	<li><b><u>Facebook</u></b>: <a href="https://lookup-id.com" target="_blank">Lookup-ID</a> OR <a href="https://commentpicker.com/find-facebook-id.php" target="_blank">Find My FB ID</a> OR search the source code for: 
+		<ul>
+			<li>User accounts: find "<b>UserID</b>" immediately after the name used on account .</li>
+			<li>Business listings and group pages: find "<b>pageID</b>".</li>
+		</ul><br>
+
+	<li><b><u>Twitter</u></b>: <a href="http://codeofaninja.com/tools/find-twitter-id/" target="_blank">Find Twitter ID</a>. Twitter is not currently displaying User IDs in the source code.</li> <br>
+
+	<li><b><u>Instagram</u></b>: <a href="http://www.instafollowers.co/find-instagram-user-id" target="_blank"> Find Instagram User ID</a> OR search the source code for:
+		<ul>
+			<li><i>ImgInn</i>: find "<b>data-id=</b>" in the source code.</li>
+            <li><i>PixWox</i>: find "<b>"userid" value=</b>" in the source code.</li>
+			<li><i>Sweetagram</i>: user ID will be listed below "followers	".</li>
+			<li>From a logged-in IG account: find " <b>ProfilePage_</b>".</li>
+		</ul><br></li>
+	
+    <li><b><u>YouTube</u></b>: <a href="https://commentpicker.com/youtube-channel-id.php" target="_blank">YouTube Channel ID</a> OR: find "<b>externalID</b>" in the source code.</li><br>
+
+	<li><b><u>TikTok</u></b>: <a href="https://www.instafollowers.co/find-tiktok-user-id" target="_blank">Find TikTok User ID</a> OR: find "<b>authorID</b>" in the source code.</li>
+	
+</ul></div>
+
+
+   	<div style=
+		"min-width: 450px;
+		width: 90%;
+		padding: 10px 10px;
+		border: 4px rgb(38, 0, 109) solid;
+		position: relative;
+		left: 45px;
+		top: 10px;
+		margin: 20px 0;
+		background-color: #e8dbfd;
+		border-radius: 25px;">
+	<h2 style="font-size:150%;margin-top:0px;margin-bottom:-3px"><u>Additional Tools/Tips/Guidance</u>:</h2><br>
+     
+    <b>Pop-ups when Reviewing Twitter:</b> SMD has found that a "sign-in" pop up window currently halts a full review of accounts. Closing the window (click "sign in", then immediately closing the window using the "X" button) will permit Conductors to see the remaining information. As always, privacy guidelines prevent any unauthorized signing into platform accounts.<br><br>
+	
+    <b>Narrowing Information:</b> Adding city of birth or city of residence to Facebook (in the "City" field) and Google can narrow results for common names or searches with many results. It may be important to include country calling codes and phone number formatting from the country of origin for phone selectors. Additionally, adding country of origin + phone number may clarify results in Google. (ex. <i>Honduras = +504 5555-5555</i>).<br><br>
+
+    <b>DocSumo:</b> OCR translation tool DocSumo has been added as a default add-on in Chrome. Currently, DocSumo does not have an equivalent tool inside Firefox. The <a href="https://docsumo.com/free-tools/online-ocr-scanner" target="_blank">Online OCR Scanner</a> file upload should work in either browser.<br><br>
+
+    <b>Logged-In Checks:</b> 
+    <ul>
+        <li><u>Facebook</u>: searches on FB are required for all social media checks. If you cannot review FB, a logged-in referral to an Assistor is required. Assistors must run names, aliases, email handles, and account screennames.</li>
+        <li><u>Instagram</u>: third-party IG sites satisfy the requirement a Conductor has reviewed IG. Refreshing and changing browsers may help review third-party IG sites. If there is information of interest found on an IG account, that information must be captured on Instagram.com as well by an Assistor.</li>
+        <li><u>LinkedIn</u>: referrals for logged-in account review should only be used when the social media check is directly related to information about employment or work histories. LinkedIn does not display information about marriages or relationship status.</li>
+    </ul>
+    
+    
+
+	<p style="text-align: center;margin-bottom:-3px;"> <i>Please share any additional tips you find with SMD!</i></p>
+	</div>
+
+<!-- NOTE BOX -->
+<div id="notebox" style=
+         "padding: 5px;
+		  position: relative;
+		  left: 45px;
+		  top: 3px;
+		  width:66%;
+		  margin-bottom: 10px;">	
+		<h3>Search Notes:</h3>
+		<textarea rows="2" cols='80'>THIS BOX CAN BE RESIZED USING BOTTOM RIGHT CORNER. These notes are deleted after R2D2 is closed. They will not be saved and will disappear if you close down this session.</textarea>
+	</div>
+
+    
+<!--Updates Section -->
+<p><div style=
+	"min-width: 450px;
+	 max-width: 1250px;
+	 width: 90%;
+     padding:10px;
+	 position: relative;
+	 left: 45px;
+	 top: 5px;
+	 display: block;
+	 border: 1px rgb(19, 0, 104) solid;
+	 background-color: #f8f8f8;">
+		
+	<h3 style="margin-top:0px;margin-bottom:-3px"><u>Updates to Search Launcher</u>: </h3>
+		<p>06/13/22:</p> 
+		<ul>
+			<li>Third-party IG tools have been updated due to prior sites no longer functioning consistently.</li>
+			<li>Updates to source code terms for user IDs.</li>
+			<li>Backend performance updates.</li>
+		</ul>        
+		<p>03/14/22:</p>
+        <ul>
+            <li>Updated references from GramHo to GramHir to reflect change in third-party IG tool's name.</li>
+            <li>Have updated the search terms in the green "Confirmed Account Tools" box for finding User ID's in source code due to changes in how platforms display that information.</li>
+            <li>Updates to the "Reminders" and "Additional Tools/Tips/Guidance" (formerly "Additional Tools") section.</li>
+        </ul>
+    
+
+            <button class="updatescol"><u><b>View previous updates</b></u></button>	
+            <div class="updatesexpander">
+            <div class="pastupdate" style="margin:10px auto;">
+		<p>01/01/22:</p>
+			<ul>
+				<li>Happy New Year from SMD!</li>
+				<li>TikTok is no longer part of the mandatory platforms to search. It remains in the required platform boxes but is listed as optional for Conductors.</li>
+				<li>Updates to the green "Confirmed Account Tools" box.</li>
+			</ul>
+
+		<p>12/01/21:</p>
+            <ul>
+                <li>TikTok has been added as a default selector checked off for the month of December. Please include TikTok in all selector searches (except for telephone numbers).</li>
+            </ul>
+        <p>11/22/21:</p>
+			<ul>
+                <li>TikTok has been added to the default blue boxes for the December testing of the platform. Begining December 1st, please include this as a 6th platform for social media checks.</li>
+                <li>Blue box searches will now permit you to run both Gramho and Picuki for IG results. Previously opened a single tab for IG results.</li>
+				<li>Minor updates to hyperlinks and underlying tools.</li>
+			</ul>
+	
+
+		<p>08/16/21:</p>
+			<ul>
+				<li>The “Required Platforms” search bars have platform checkboxes which will toggle platforms used on each search. Facebook currently not selected by default due to ongoing platform accessibility issues. </li>
+				<li>URLs for search results have been updated to reflect changes in platforms. Search term in source code for Picuki also updated.</li>
+				<li>“Customized/Additional Searches” bars have been divided into two groups (additional and variation). TikTok, YouTube Channels, and YouTube (all videos) have been added as platform choices. </li>
+				<li>“Additional Tools” information updated and UI-masker explanation now condensed. </li>
+				<li>Reminder text at top of the Search Launcher has been updated and expanded.</li>
+				<li>All requirements for platforms to search as part of complete social media check remain the same. All required platforms must be searched and results documented.</li>	
+			</ul>
+		
+		<p>05/04/21:</p>
+			<ul>
+				<li>Due to ongoing issues accessing the platform, the URL for Facebook search results has been returned to the standard 'www" URL. Displayed language will default to egress.</li>
+			</ul> 
+		
+	
+		<p>04/07/21:</p>
+			<ul>
+				<li>Mandatory search boxes have been consolidated from three separate boxes into one section.</li>
+				<li>3rd-party Instagram links have now been set as "add-to-search" buttons to add to mandatory search bar.</li>
+				<li>Twitter search settings, "add-to-search" button, and explanation have been updated and improved.</li>
+				<li>Updates to third-party links and source codes to use for confirmed accounts.</li>
+				<li>Boolean quotation mark operators (<i>Example</i>: "John Adams") has been added to Google searches by default.</li>
+				<li>Google and Facebook results should default to English language text, regardless of egress used. This functionality is <i>not</i> implemented in the yellow Customized Search bar to preserve default functionality.</li>
+				<li>YouTube results now default to "channels" view, as opposed to a site-wide search of all content. Can be clicked off in the "filters" drop down.</li>
+				<li>Additional sites mentioned in SOP have been added to custom search bar. Sites which no longer worked were also removed from custom search bar.</li> 
+				<li>Updates to visual formatting.</li>
+			</ul> 
+
+		
+		<p>11/18/20:</p>
+			<ul>
+				<li>Addition of purple explanation box for browser/device add-ons in Chrome and Firefox. It details how to use Firefox to view traditional Twitter as a "google bot" in Add-on options.</li>
+				<li>Formatting changes to headings for each box in Search Launcher.</li>
+				<li>Corrections to listed platforms as part of email search. Correction of IG link in custom search bar.</li>
+				<li>Standardization of links for finding user IDs. Corrections to broken links, tools, and search terms for user IDs.</li>
+				<li>Removed optional check boxes for name and phone selectors.</li>
+			</ul>
+		<p>06/11/20:</p>
+			<ul>
+				<li>Users will be able to select their egress (location) after logging into R2D2. It will launch a new instance of the browser window and will <u>NOT</u> carry over any open windows when a new egress location is chosen. Users are advised to change egress points periodically to spread out data traffic.</li>
+				<li>Javascript in Chrome browser is blocked by default, as a way to prevent platforms from blocking publicly available results.</li>
+				<li>Add-on allows users to change what type of device or browser it appears they are using when accessing websites. This may allow for greater visibility of public information.</li>
+				<li>Twitter will show a "legacy view" in Chrome due to Javascript being disabled. Firefox is currently unable to display full searches in Twitter. Add-on mentioned above may provide additional functionality on Twitter.</li>
+				<li>A Twitter "Directory" Tab button has been added for use by Firefox browser.</li>
+				<li>Consult the Social Media ECN for any current advisories related to logged-in account referral process.</li>
+				<li>Alternate View button removed from name search bar.</li>
+				<li>ReversePhoneSearch.com no longer working. Replaced with search for phone number connected to WhatsApp listings online.</li>
+				<li>Additional Instagram and new platform links in Individual Platform Search Bar. Due to the limited functionality of GramUser, ImgInn website is now default to search for IG accounts.</li>
+                <li>Added ID source code for Facebook accounts that belong to a business/organization. Additional link for Facebook also included.</li>
+                <li>Due to advisories related to Govt. use of TikTok on devices, the platform has been removed from Search Launcher.</li>
+                <li>Backend improvements for egress points, including additional egress points for users.</li>
+            </ul>
+        <p>12/08/19:</p>
+			<ul>
+				<li>Backend improvements in the formation of instances, including removal of persistent cookies, to help anonymize web traffic. Remember, you can always clear your web traffic by pressing CTRL+SHIFT+DELETE and clearing all web history.</li>
+                <li>Pop-ups should be automatically enabled for the search launcher for users. If not, remember to enable them by clicking on the pop-up in Firefox or the red icon in the URL bar in Chrome.</li>
+				<li>Tabs that were previously opened upon launch are now saved as links in the "Bookmarks" folder. In order to launch all bookmarks, right click on the folder and select "open all".</li>
+			</ul>
+        <p>09/04/19:</p>
+			<ul>
+				<li>Due to changes in Facebook and Instagram, some third party sites and platforms may not perform as expected. Consult with resource pages or management to determine best course of actions if any platforms are not functioning. </li>
+				<li>Custom search box functionality added. Search box will allow to officers to choose platforms and re-run searches using those tabs. The standard Facebook page, however, continues to generate a new tab each search due to platform settings.</li>
+				<li>Source code of user profile IDs available so that it may be cut and pasted into the (Ctrl+F) finder bar. </li>
+				<li>Due to new account requirement, PIPL has been removed from default search launcher results tabs. It remains available within the custom search bar. Additional search functionality for US domestic phone numbers has been implemented with check box.</li>
+				<li>Due to Webstagram site no longer functioning, it has been removed from default search launcher results tabs. It remains available within the custom search bar. UserGram has been implemented as a replacement tool for officers. Still verify accounts on instagram.com.</li>
+                <li>Source code of user profile IDs available so that it may be cut and pasted into the (Ctrl+F) finder bar. </li>
+				<li>Checkbox added to allow users to switch between Facebook (main) and Facebook mobile search results for name selectors.</li>
+				<li>Additional search functionality for US phone numbers added as optional checkbox.</li>
+                <li>"Username only" checkbox added for usernames or profile names as selectors.</li>
+                <li>Platform ID source code added in addition to third-party sites. Can be copied within R2D2 for Ctrl+F search purposes.</li>
+				<li>Backend search launcher improvements.</li>
+			</ul>
+		<p>12/13/18:</p>
+			<ul>
+			<li>Search results now re-use tabs.  Searches of the same selector type (name, email, phone) will open within the prior results tabs. (<i>This does not apply to the tabs that open by default upon launch of R2D2, or to the standard Facebook tab.</i>) Closing tabs between selector types is recommended for clarity.</li>
+			<li>The following results have been added: Facebook mobile view and Google image results for names.</li>
+			<li>Corrected links for Twitter results with emails and handles.</li>
+			<li>Corrected links for optional PIPL results for emails and phone numbers.</li>
+			<li>The following results have been removed: Instagram.com as a direct link using full name.</li>
+            <li>Platform ID links have been added below search boxes.</li>
+            </ul> 
+		</div>
+    </div>
+    <script>
+		var coll = document.getElementsByClassName("updatescol");
+		var i;
+		for (i = 0; i < coll.length; i++) {
+		  coll[i].addEventListener("click", function() {
+			this.classList.toggle("active");
+			var content = this.nextElementSibling;
+			if (content.style.maxHeight){
+			  content.style.maxHeight = null;
+			} else {
+			  content.style.maxHeight = content.scrollHeight + "px";
+			} 
+		  });
+		}
+	</script>
+</div>
+</p>		
+</div>
+
+<!-- Egress Display-->
+<script>
+	var proxy = window.localStorage.getItem("proxy")
+
+	if (proxy === null || proxy === "null"){
+		const urlParams = new URLSearchParams(window.location.search);
+		proxy = urlParams.get('proxy');
+	}
+
+	if( proxy !=  null){
+	   var toSet = "Current Egress is: "+ proxy
+	}else{
+	   var toSet = "No Egress is set. Please run Egress Switcher"
+	}
+
+	window.localStorage.setItem("proxy",proxy)
+	document.getElementById('ProxyLocation').innerHTML = toSet
+</script>
+<!--End Egress Display--> 
+
+<!--clock digital-->
+<!--This section creates a clock that always shows the current time-->
+<script type="text/javascript">
+	var tmonth = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
+
+	function GetClock() {
+		var tzOffset = -4;//set this to the number of hours offset from UTC
+
+		var d = new Date();
+		var dx = d.toGMTString();
+		dx = dx.substr(0, dx.length - 3);
+		d.setTime(Date.parse(dx))
+		d.setHours(d.getHours() + tzOffset);
+		var nmonth = d.getMonth(), ndate = d.getDate(), nyear = d.getFullYear();
+
+		var nhour = d.getHours(), nmin = d.getMinutes(), ap;
+		if (nhour == 0) { ap = " AM"; nhour = 12; }
+		else if (nhour < 12) { ap = " AM"; }
+		else if (nhour == 12) { ap = " PM"; }
+		else if (nhour > 12) { ap = " PM"; nhour -= 12; }
+
+		if (nmin <= 9) nmin = "0" + nmin;
+
+		document.getElementById('clockbox').innerHTML = "" + tmonth[nmonth] + " " + ndate + ", " + nyear + " " + nhour + ":" + nmin + ap + "";
+	}
+
+	window.onload = function () {
+		GetClock();
+		setInterval(GetClock, 1000);
+	}
+</script>
+
+<div id="clockbox" style="
+position: relative; 
+color:#2e6c80;
+left: 25px;
+font-size: 15px;">
+</div>
+
+</body>
+<!--Thus ends the clock-->

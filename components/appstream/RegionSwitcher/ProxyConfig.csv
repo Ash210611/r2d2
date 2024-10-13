@@ -1,0 +1,33 @@
+United States
+Virginia,us-east-1.r2d2hostedzone:3128,en-US,Eastern Standard Time
+Ohio,us-east-2.r2d2hostedzone:3128,en-US,Eastern Standard Time
+Oregon,us-west-2.r2d2hostedzone:3128,en-US,Pacific Standard Time
+California,us-west-1.r2d2hostedzone:3128,en-US,Pacific Standard Time
+Europe
+Ireland,eu-west-1.r2d2hostedzone:3128,en-IE,W. Europe Standard Time
+London,eu-west-2.r2d2hostedzone:3128,en-GB,GMT Standard Time
+Paris,eu-west-3.r2d2hostedzone:3128,fr,Romance Standard Time
+Milan,eu-south-1.r2d2hostedzone:3128,it,Central European Standard Time
+Spain,eu-south-2.r2d2hostedzone:3128,es-ES,Romance Standard Time
+Frankfurt,eu-central-1.r2d2hostedzone:3128,de,Central European Standard Time
+Zurich,eu-central-2.r2d2hostedzone:3128,de-ch,W. Europe Standard Time
+Stockholm,eu-north-1.r2d2hostedzone:3128,sv,Central European Standard Time
+Canada
+Montreal,ca-central-1.r2d2hostedzone:3128,en-CA,Eastern Standard Time
+Middle East
+Bahrain,me-south-1.r2d2hostedzone:3128,BH,Arab Standard Time
+UAE,me-central-1.r2d2hostedzone:3128,AR,Arabia Standard Time
+Asia
+Singapore,ap-southeast-1.r2d2hostedzone:3128,zh-SG,Malay Peninsula Standard Time
+Sydney,ap-southeast-2.r2d2hostedzone:3128,en-AU,AUS Eastern Standard Time
+Jakarta,ap-southeast-3.r2d2hostedzone:3128,id,SE Asia Standard Time
+Melbourne,ap-southeast-4.r2d2hostedzone:3128,en-AU,AUS Eastern Standard Time
+Tokyo,ap-northeast-1.r2d2hostedzone:3128,ja,Tokyo Standard Time
+Seoul,ap-northeast-2.r2d2hostedzone:3128,ko,Korea Standard Time
+Osaka,ap-northeast-3.r2d2hostedzone:3128,ja,Tokyo Standard Time
+Mumbai,ap-south-1.r2d2hostedzone:3128,en-IN,India Standard Time
+Hyderabad,ap-south-2.r2d2hostedzone:3128,en-IN,India Standard Time
+South America
+Sao Paulo,sa-east-1.r2d2hostedzone:3128,pt-BR,E. South America Standard Time
+Africa
+Cape Town,af-south-1.r2d2hostedzone:3128,en-ZA,South Africa Standard Time

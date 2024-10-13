@@ -1,0 +1,61 @@
+<form>
+  <search id="baseSearch">
+    <query>
+      sourcetype="appstream_session"
+| fields UserId,_time,EniPrivateIpAddress 
+| rename EniPrivateIpAddress as WinIp 
+| eval SessionMinute = strftime(_time,"%Y-%m-%d %H:%M")
+| eval SessionMinuteAndWinIp = SessionMinute." ".WinIp
+| dedup UserId,SessionMinuteAndWinIp
+| table UserId,SessionMinuteAndWinIp
+| outputlookup AppstreamLookup.csv
+    </query>
+    <progress>
+      <unset token="NOOP_1"></unset>
+    </progress>
+    <done>
+      <set token="NOOP_1">noop</set>
+    </done>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+  </search>
+  <label>Raw Data Demo</label>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <title>User Traffic</title>us<input type="time" token="field1">
+        <label></label>
+        <default>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <table>
+        <search depends="$NOOP_1$">
+          <query>
+            sourcetype="squid:access"
+| fields url,src_ip,host,_time
+| rename src_ip as WinIp
+| eval SessionMinute = strftime(_time,"%Y-%m-%d %H:%M") 
+| eval SessionMinuteAndWinIp = SessionMinute." ".WinIp
+| dedup url,host, SessionMinuteAndWinIp
+| table url,host, SessionMinuteAndWinIp
+| lookup AppstreamLookup.csv SessionMinuteAndWinIp
+| table UserId,host,SessionMinuteAndWinIp,url
+          </query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

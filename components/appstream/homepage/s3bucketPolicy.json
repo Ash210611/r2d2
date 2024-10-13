@@ -1,0 +1,21 @@
+{
+    "Version": "2012-10-17",
+    "Id": "Policy1592577738686",
+    "Statement": [
+        {
+            "Sid": "Stmt1592577282409",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::r2d2-launcher-nonprod/*",
+                "arn:aws:s3:::r2d2-launcher-nonprod"
+            ],
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceVpc": "vpc-0fc611479e4d3022c"
+                }
+            }
+        }
+    ]
+}

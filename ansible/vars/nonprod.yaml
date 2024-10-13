@@ -1,0 +1,112 @@
+---
+# The environment we are in
+env:                          "nonprod"
+# What region is the homebase in
+homebase_region:              "virginia"
+# Name of the cloudformation stack
+homebase_cfn_name:            "homebase-{{env}}-{{homebase_region}}"
+# Our IP ranges are all in 10.0.0.0/8
+# This is the X in 10.X.0.0/16
+homebase_vpc_num:             "50"
+# Size of the ec2 instance our logging server is
+logging_size:                 "c5.large"
+# Keyname for the Logging server
+keyname_logging:              "r2d2-nonprod"
+# Keyname for the proxy servers
+keyname_proxy:                "proxy_nonprodr2d2"
+# The image ID to be used 
+# TODO: Determine if this variable is still used, might be old
+hardened_image_id:            "ami-07f60d8d1e8ae7835"
+# Appstream ImageID to use 
+base_appstream_image_name:    "AppStream-WinServer2019-09-18-2019"
+# Name of the image to use in the fleet
+fleet_appstream_image_name:   "cookieguard_nonprod_14nov19_2"
+# name of the route53 hosted zone. Used in the DNS configuration
+hosted_zone_name:             "r2d2hostedzone"
+# name of the S3 Bucket to upload config files to
+s3_config_bucket:             "r2d2-configuration"
+# size of the ec2 instances for proxy servers
+proxy_size:                   "t3.micro"
+# iam role to attach to the proxy servers
+iam_profile:                  "ProxyRole"
+# lambda role to attach to the lambda ip rotators
+lambda_role:                  "arn:aws:iam::776171595951:role/IProtate_Role"
+# This is the Y in 10.X.Y.0/24 ip range
+homebase_color_subnet_num:
+  blue:  4
+  green: 5
+  none:  6
+# List of regions to put a proxy server in
+region_list:
+  - name:     virginia
+    vpc_num:  51
+  - name:     ohio
+    vpc_num:  61
+  - name:     oregon
+    vpc_num:  52
+  - name:     california
+    vpc_num:  63
+  - name:     ireland
+    vpc_num:  59
+  - name:     london
+    vpc_num:  67
+  - name:     paris
+    vpc_num:  58
+  - name:     frankfurt
+    vpc_num:  65
+  - name:     stockholm
+    vpc_num:  62
+  - name:     montreal
+    vpc_num:  68
+  - name:     singapore
+    vpc_num:  57
+  - name:     sydney
+    vpc_num:  56
+  - name:     tokyo
+    vpc_num:  55
+  - name:     seoul
+    vpc_num:  54
+  - name:     mumbai
+    vpc_num:  53
+  - name:     saopaulo
+    vpc_num:  66
+  - name:     bahrain
+    vpc_num:  69
+  - name:     osaka
+    vpc_num:  64
+  - name:     milan
+    vpc_num:  60
+  - name:     capetown
+    vpc_num:  70
+  - name:     zurich
+    vpc_num:  71
+  - name:     spain
+    vpc_num:  72
+  - name:     jakarta
+    vpc_num:  73
+  - name:     hyderabad
+    vpc_num:  74
+  - name:     uae
+    vpc_num:  75
+  - name:     melbourne
+    vpc_num:  76
+  
+# S3 Files to configure
+s3_files:
+  - name: route53dns.json
+    path: components/squidproxy/config/route53dns.json
+  - name: user-seed.conf
+    path: components/squidproxy/config/user-seed.conf
+  - name: squid.conf
+    path: components/squidproxy/config/squid.conf
+  - name: inputs.conf
+    path: components/squidproxy/config/inputs.conf
+  - name: outputs.conf
+    path: components/squidproxy/config/outputs.conf
+# What to replace in the S3 Files
+s3_replacement:
+  - varName:  __APPSTREAMSOURCE__
+    value:    "10.{{homebase_vpc_num}}.{{homebase_color_subnet_num[color]}}.0/24"
+  - varName:  __HOSTEDZONENAME__
+    value:    "{{hosted_zone_name}}"
+

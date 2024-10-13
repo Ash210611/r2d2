@@ -1,0 +1,144 @@
+Pre deploy prerequisistes:
+
+1) Make sure you are using the most up to date image (get most recent image from lambda)
+
+lambda is AppStreamImageAlertFix
+
+
+ NOTE: To get to proxy, need to launch jump box from APP stream Images -> image builder -> (button on image builder page) connect
+
+1.5) Go to ssh (git terminal) use ssh (up arrow to auto complete for ssh into proxy ec2 instance)
+
+2) Make sure manual exception is made in the squid proxy (security groups, iptables, and squid itself
+
+Check iptables, make sure one block contains  10.50.0.0/16
+
+```
+sudo su
+iptables -nL
+```
+================================Example Output====================================
+Chain INPUT (policy DROP)
+target     prot opt source               destination
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0
+DROP       all  --  127.0.0.0/8          0.0.0.0/0
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED
+ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:22 state NEW
+ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            udp dpt:68 state NEW
+ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            udp dpt:123 state NEW
+ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            udp dpt:323 state NEW
+ACCEPT     all  --  10.50.0.0/16         0.0.0.0/0
+
+Chain FORWARD (policy DROP)
+target     prot opt source               destination
+
+Chain OUTPUT (policy DROP)
+target     prot opt source               destination
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            state NEW,ESTABLISHED
+ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            state NEW,ESTABLISHED
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            state NEW,ESTABLISHED
+===================================================================================
+
+Now lets check the squid proxy stuff:
+
+Run the below command
+```
+cd /etc/squid/
+cat squid.conf
+```
+
+if its a different range, change it to that range, then restart the server from the
+aws console make sure you check after redeploying proxies, because it will be something like 10.50.4.0/24 <-wrong setting
+****Check Squid configuration, make sure that the following block exists with the item below*****
+acl appstream src 10.50.0.0/16 <- correct setting
+
+.
+.
+.
+#
+# INSERT YOUR OWN RULE(S) HERE TO ALLOW ACCESS FROM YOUR CLIENTS
+#
+acl appstream src 10.50.0.0/16
+.
+.
+.
+
+
+
+
+3) Upload the R2D2 Zip file to the S3 Bucket (named: r2d2-binaries) **automate this step using jenkins, since we can zip and use plugin to upload to s3**
+
+
+Deploy AppStream Instructions
+
+1) Create New Appstream image, select public - windows server 2019- general purpose (in drop downs)
+
+ Then on the next screen select: general purpose (middle one), for IAM we use the only security group there, in builder subnet with AppStreamSG security group and IAM permissions (only one available for app stream)
+
+ Next screen we dont check internet box, select vpc home, for subnet we use 'builder', for security group we use appStreamSG,
+
+ Final screen Just make sure you didn't screw up, and click launch.
+
+ (will take about 15 to 30 minutes)
+
+2) Go to appstream as admin first. Then Open ISE as admin, paste in the DeployAppStreamPrograms.ps1, and run
+
+3) Wait til above is finished, aprox 30min (can cut this down later), then update proxy information if in nonprod.
+
+4) Open ISE as non-admin
+
+5) run C:\AutoConfig\RegionAndProfileSwitcherGui.ps1 in non admin ISE. Select Virginia in the GUI that pops up and press Ok, and OK again to the popup
+
+6) There should be 4 errors. Re-run 5 and there should only be 3 now. 
+
+7) run Deploy2.ps1 in the admin ISE
+
+8) Re-run step 5, and there should only be 2 errors now
+
+
+
+
+
+9) Delete Chrome and Firefox desktop shortcuts
+
+9.5) send to desktop as shortcuts these 3 files:
+    C:\Shortcuts\firefox.bat
+    C:\Shortcuts\chrome.bat
+    C:\AutoConfig\EgressSwitcher.bat
+
+
+9.75) Manually validate logging server is pointing to the correct location (how)
+
+10) run the image assistant on desktop, add the three above bats as applications, icons are in the folder with them.
+Then click next and select template user, when in template user select image assistant again and run the three programs.
+Then click on the upper right and select switch to admin user. Then on the next screen click "Save Settings". Then click next.
+Click next again, we are not worried about test user. On the resulting screen, click the blue box on the right of the page "optimize" and let it run, clicking
+continue to move it along once program is done loading. Then on the next screen enter the name date_month_year 00_jan_20 (example).
+click next and then click disconnect and create image.
+
+
+IMPORTING TO PROD
+
+1) Share image with prod
+
+2) Update the Logging server for user stack
+
+C:\Program Files\SplunkUniversalForwarder\etc\system\local\outputs.conf
+
+2.5) Delete the C:\deployment folder  
+
+3) Build Image
+
+4) Turn back on Image Builder
+
+5) Update Logging server for profile stack
+
+6) Update proxy DNS for profile stack
+
+C:\AutoConfig\ProxyConfig.csv
+
+7) Build Image
+

@@ -1,0 +1,254 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fswiss\fcharset0 Helvetica-Bold;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww23600\viewh15760\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 # Define policies for Chrome\
+$chromeHomepage = "https://www.google.com"\
+$chromeUrlBlockList = @("https://www.twitch.tv", "https://www.threads.net")\
+$chromeUrlPopupList = @("solo-launcher.s3.amazonaws.com")\
+$chromeSafeBrowsingEnabled = 1\
+$chromeIncognitoModeAvailability = 1\
+$chromeSyncDisabled = 1\
+$chromeDefaultPopupsSetting = 2\
+$chromehistoryvalues = @("browsing_history","download_history","cookies_and_other_site_data","cached_images_and_files","password_signin","autofill","site_settings","hosted_app_data")\
+$chromeExtensionInstallList = @(\
+    "haebnnbpedcbhciplfhjjkbafijpncjl;https://clients2.google.com/service/update2/crx",\
+    "immpkjjlgappgfkkfieppnmlhakdmaab;https://clients2.google.com/service/update2/crx",\
+    "fkjbliednplpohojfpgnbpcppgdnhklb;https://clients2.google.com/service/update2/crx",\
+    "djflhoibgkdhkhhcedjiklpkjnoahfmg;https://clients2.google.com/service/update2/crx"\
+)\
+\
+# Define registry paths\
+$chromeRegistryPath = "HKLM:\\SOFTWARE\\Policies\\Google\\Chrome"\
+$chromeUrlBlockListPath = "$chromeRegistryPath\\URLBlocklist"\
+$chromePoups = "$chromeRegistryPath\\PopupsAllowedForUrls"\
+$clearbrowsinghistoryPath = "$chromeRegistryPath\\ClearBrowsingDataOnExitList"\
+$ExtensionInstallPath = "$chromeRegistryPath\\ExtensionInstallForcelist"\
+\
+# Function to ensure a registry path exists which sees the path as a parameter. It uses the function Test-Path to ensure that the registry exists and if it is already there then it skips folder creation and continues with the execution of the script otherwise it creates the path and proceeds accordingly.\
+function Ensure-RegistryPath \{\
+    param (\
+        [string]$path\
+    )\
+    $pathExists = Test-Path $path\
+    if ($pathExists -eq $false) \{\
+        New-Item -Path $path -Force\
+    \}\
+    return $pathExists\
+\}\
+\
+# Function to set Chrome homepage 
+\f1\b (New Policy)
+\f0\b0 \
+function Apply-ChromeHomepage \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path $chromeRegistryPath -Name "HomepageLocation" -Value $chromeHomepage -Type String\
+\}\
+\
+# Function to enable Safe Browsing 
+\f1\b (New Policy)
+\f0\b0 \
+function Apply-ChromeSafeBrowsing \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path $chromeRegistryPath -Name "SafeBrowsingEnabled" -Value $chromeSafeBrowsingEnabled -Type DWord\
+\}\
+\
+# Function to configure Incognito Mode 
+\f1\b (New Policy)
+\f0\b0 \
+function Apply-ChromeIncognitoMode \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path $chromeRegistryPath -Name "IncognitoModeAvailability" -Value $chromeIncognitoModeAvailability -Type DWord\
+\}\
+\
+# Function to disable Chrome Sync 
+\f1\b (New Policy)
+\f0\b0 \
+function Apply-ChromeSync \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path $chromeRegistryPath -Name "SyncDisabled" -Value $chromeSyncDisabled -Type DWord\
+\}\
+\
+# Function to set default popup settings 
+\f1\b (ExistingPolicy)
+\f0\b0 \
+function Apply-ChromePopupSettings \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path $chromeRegistryPath -Name "DefaultPopupsSetting" -Value $chromeDefaultPopupsSetting -Type DWord\
+\}\
+\
+# Function to manage bookmarks 
+\f1\b (Existing Policy)
+\f0\b0 \
+function Apply-ChromeManagedBookmarks \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name ManagedBookmarks -Type String -Value '[\{"toplevel_name": "Bookmarks"\},\{"name": "Homepage", "url": "https://solo-launcher.s3.amazonaws.com/homepage.html"\},\{"name": "Facebook Lookup-ID", "url": "https://lookup-id.com"\},\{"name": "Facebook CommentPicker", "url": "https://commentpicker.com"\},\{"name": "Twitter CodeNinja", "url": "https://codeofaninja.com/tools/find-twitter-id"\},\{"name": "Instagram Instafollowers", "url": "http://instafollowers.co/find-instagram-user-id"\}, \{"name": "YouTube CommentPicker", "url": "https://commentpicker.com/youtube-channel-id.php"\}]'\
+\}\
+\
+# Function to enable/disable Bookmark Bar 
+\f1\b (Existing Policy)
+\f0\b0 \
+function Apply-ChromeBookmarkBar \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name BookmarkBarEnabled -Type DWord -Value 1\
+\}\
+\
+# Function to configure autofill settings 
+\f1\b (New Policy)
+\f0\b0 \
+function Apply-ChromeAutofillSettings \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name AutofillAddressEnabled -Type DWord -Value 0\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name AutofillCreditCardEnabled -Type DWord -Value 0\
+\}\
+\
+# Function to manage password manager settings 
+\f1\b (New Policy)
+\f0\b0 \
+function Apply-ChromePasswordManager \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name PasswordManagerEnabled -Type DWord -Value 0\
+\}\
+\
+# Function to manage search suggestions 
+\f1\b (New Policy)
+\f0\b0 \
+function Apply-ChromeSearchSuggestions \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name SearchSuggestEnabled -Type DWord -Value 0\
+\}\
+\
+# Function to enable/disable translation 
+\f1\b (New Policy)
+\f0\b0 \
+function Apply-ChromeTranslate \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name TranslateEnabled -Type DWord -Value 0\
+\}\
+\
+# Function to block third-party cookies 
+\f1\b (New Policy)
+\f0\b0 \
+function Apply-ChromeThirdPartyCookies \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name BlockThirdPartyCookies -Type DWord -Value 0\
+\}\
+\
+# Function to manage extensions 
+\f1\b (New Policy)
+\f0\b0 \
+function Apply-ChromeExtensions \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name BlockExternalExtensions -Type DWord -Value 1\
+\}\
+\
+# Function to set user data directory 
+\f1\b (Existing Policy)
+\f0\b0 \
+function Apply-ChromeUserDataDirectory \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name UserDataDir -Type String -Value "C:\\BrowserData\\Chrome\\"\
+\}\
+\
+# Function to prevent Chrome from checking default browser status 
+\f1\b (New Policy)
+\f0\b0 \
+function Apply-ChromeDefaultBrowserCheck \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name DefaultBrowserSettingEnabled -Type DWord -Value 0\
+\}\
+\
+# Function to set Privacy Sandbox policies 
+\f1\b (ExistingPolicy)
+\f0\b0 \
+function Apply-ChromePrivacySandbox \{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name PrivacySandboxAdMeasurementEnabled -Type DWord -Value 1\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name PrivacySandboxAdTopicsEnabled -Type DWord -Value 1\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name PrivacySandboxPromptEnabled -Type DWord -Value 1\
+    Set-ItemProperty -Path "$chromeRegistryPath" -Name PrivacySandboxSiteEnabledAdsEnabled -Type DWord -Value 1\
+\}\
+\
+# Function to set URL block list 
+\f1\b (New Policy)
+\f0\b0 \
+function Apply-ChromeUrlBlockList \{\
+    Ensure-RegistryPath $chromeUrlBlockListPath\
+    for ($i = 0; $i -lt $chromeUrlBlockList.Count; $i++) \{\
+        New-ItemProperty -Path $chromeUrlBlockListPath -Name "$i" -Value $chromeUrlBlockList[$i] -PropertyType String -Force\
+    \}\
+\}\
+\
+# Function to set allowed pop-ups 
+\f1\b (Existing Policy)
+\f0\b0 \
+function Apply-ChromeAllowedPopups \{\
+    Ensure-RegistryPath $chromePoups\
+    for ($i = 0; $i -lt $chromeUrlPopupList.Count; $i++) \{\
+        New-ItemProperty -Path $chromePoups -Name "$i" -Value $chromeUrlPopupList[$i] -PropertyType String -Force\
+    \}\
+\}\
+\
+# Function to clear browsing data on exit 
+\f1\b (New Policy)
+\f0\b0 \
+function Apply-ChromeClearBrowsingDataOnExit \{\
+    Ensure-RegistryPath $clearbrowsinghistoryPath\
+    for ($i = 0; $i -lt $chromehistoryvalues.Count; $i++) \{\
+        New-ItemProperty -Path $clearbrowsinghistoryPath -Name ([string]($i + 1)) -Value $chromehistoryvalues[$i] -PropertyType String -Force\
+    \}\
+\}\
+        \
+# Function sets the proxy server settings in chrome 
+\f1\b (Existing Policy)
+\f0\b0 \
+function Apply-ChromeProxyServerSettings\{\
+    Ensure-RegistryPath $chromeRegistryPath\
+    Set-ItemProperty -Path $chromeRegistryPath -Name ProxySettings -Type String -Value '\{"ProxyMode":"fixed_servers","ProxyServer":"us-east-1.solohostedzone:3128"\}'\
+\}\
+\
+# Function to apply extension install list 
+\f1\b (Existing Policy)
+\f0\b0 \
+function Apply-ChromeExtensionInstallForcelist \{\
+    Ensure-RegistryPath $ExtensionInstallPath\
+    for ($i = 0; $i -lt $chromeExtensionInstallList.Count; $i++) \{\
+        $extensionValue = $chromeExtensionInstallList[$i]\
+        Set-ItemProperty -Path $ExtensionInstallPath -Name ($i + 1).ToString() -Value $extensionValue -Type String\
+    \}\
+\}\
+   \
+   \
+    \
+\
+# Apply all Chrome policies\
+function Apply-ChromePolicies \{\
+    Apply-ChromeHomepage\
+    Apply-ChromeSafeBrowsing\
+    Apply-ChromeIncognitoMode\
+    Apply-ChromeSync\
+    Apply-ChromePopupSettings\
+    Apply-ChromeManagedBookmarks\
+    Apply-ChromeBookmarkBar\
+    Apply-ChromeAutofillSettings\
+    Apply-ChromePasswordManager\
+    Apply-ChromeSearchSuggestions\
+    Apply-ChromeTranslate\
+    Apply-ChromeThirdPartyCookies\
+    Apply-ChromeExtensions\
+    Apply-ChromeUserDataDirectory\
+    Apply-ChromeDefaultBrowserCheck\
+    Apply-ChromePrivacySandbox\
+    Apply-ChromeUrlBlockList\
+    Apply-ChromeAllowedPopups\
+    Apply-ChromeClearBrowsingDataOnExit\
+    #Apply-ChromeProxyServerSettings\
+    Apply-ChromeExtensionInstallForcelist\
+    Write-Output "Chrome policies have been applied successfully."\
+\}\
+\
+# Apply policies\
+Apply-ChromePolicies}

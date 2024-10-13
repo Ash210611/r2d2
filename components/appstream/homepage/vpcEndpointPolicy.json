@@ -1,0 +1,18 @@
+{
+    "Version": "2012-10-17",
+    "Id": "Policy1593007547523",
+    "Statement": [
+        {
+            "Sid": "Stmt1593007546110",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:*",
+            "Resource": "*",
+            "Condition": {
+                "IpAddress": {
+                    "aws:VpcSourceIp": "10.50.1.0/24"
+                }
+            }
+        }
+    ]
+}

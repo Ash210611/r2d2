@@ -1,0 +1,85 @@
+---
+# Hardened images for the CIS AWS Linux Level 1 EC2 image. It has a different 
+hardened_images:
+  ap-south-2: ami-09050272b18d0e847
+  ap-south-1: ami-02e1a3813f3dc0fe1
+  eu-south-1: ami-001d5010dda1ef1ff
+  eu-south-2: ami-0cf2e8f3f4287ad14
+  me-central-1: ami-09bc5be2300dc4445
+  ca-central-1: ami-0d0b5f3200267a7a4
+  eu-central-1: ami-0f318e4492c1154ce
+  eu-central-2: ami-0b36e550938934e6d
+  us-west-1: ami-0a157e0d1afdcd89b
+  us-west-2: ami-064996ac301585993
+  af-south-1: ami-05e267ec9ed839fdf
+  eu-north-1: ami-0e537efb51f4aa68d
+  eu-west-3: ami-07e58d2291367ee8e
+  eu-west-2: ami-0f89dede3e6309f76
+  eu-west-1: ami-0a57803292c7c8b65
+  ap-northeast-3: ami-09d2a076b6ff4ce18
+  ap-northeast-2: ami-000b4f1138c4bf170
+  me-south-1: ami-08afb219aeeda34da
+  ap-northeast-1: ami-0196a600ceb305f18
+  sa-east-1: ami-0e130d46a5a8fc202
+  ap-southeast-1: ami-003197115d2026cea
+  ap-southeast-2: ami-025ab2d36557f524b
+  ap-southeast-3: ami-05ec60333167a7325
+  ap-southeast-4: ami-0362786e49855efb4
+  us-east-1: ami-08c4b5feb158beff4
+  us-east-2: ami-05d2e63c9ad3721d1
+# Given the region code, get the region name
+envmapping:
+  us-east-1: virginia
+  us-east-2: ohio
+  ca-central-1: montreal
+  us-west-1: california
+  us-west-2: oregon
+  sa-east-1: saopaulo
+  eu-west-1: ireland
+  eu-west-2: london
+  eu-west-3: paris
+  eu-north-1: stockholm
+  eu-central-1: frankfurt
+  eu-central-2: zurich
+  eu-south-1: milan
+  eu-south-2: spain
+  af-south-1: capetown
+  me-central-1: uae
+  me-south-1: bahrain
+  ap-south-1: mumbai
+  ap-south-2: hyderabad
+  ap-northeast-1: tokyo
+  ap-northeast-2: seoul
+  ap-northeast-3: osaka
+  ap-southeast-1: singapore
+  ap-southeast-2: sydney
+  ap-southeast-3: jakarta
+  ap-southeast-4: melbourne
+# Given the region name, get the region code
+reverse_envmapping:
+  virginia: us-east-1
+  ohio: us-east-2
+  montreal: ca-central-1
+  california: us-west-1
+  oregon: us-west-2
+  saopaulo: sa-east-1
+  ireland: eu-west-1
+  london: eu-west-2
+  paris: eu-west-3
+  stockholm: eu-north-1
+  frankfurt: eu-central-1
+  zurich: eu-central-2
+  milan: eu-south-1
+  spain: eu-south-2
+  capetown: af-south-1
+  uae: me-central-1
+  bahrain: me-south-1
+  mumbai: ap-south-1
+  hyderabad: ap-south-2
+  tokyo: ap-northeast-1
+  seoul: ap-northeast-2
+  osaka: ap-northeast-3
+  singapore: ap-southeast-1
+  sydney: ap-southeast-2
+  jakarta: ap-southeast-3
+  melbourne: ap-southeast-4

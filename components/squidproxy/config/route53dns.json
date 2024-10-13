@@ -1,0 +1,17 @@
+{
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "${region}.__HOSTEDZONENAME__",
+        "Type": "A",
+        "TTL": 500,
+        "ResourceRecords": [
+          {
+            "Value": "${privateIp}"
+          }
+        ]
+      }
+    }
+  ]
+}

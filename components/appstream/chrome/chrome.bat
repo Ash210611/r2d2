@@ -1,0 +1,1 @@
+start "Chrome" "C:\Program Files\Google\Chrome\Application\chrome.exe" --new-window --disable-signin-promo --no-first-run --disable-sync --start-maximized http://localhost/homepage.html

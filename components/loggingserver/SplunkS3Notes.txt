@@ -1,0 +1,197 @@
+There are two possibilities with our splunk setup. Either we keep the logs entirely in R2D2, or move them to USCIS's Splunk Enterprise server. I will be discussing both possibilities and how we will use S3.
+
+
+Make sure you use the jumpbox_nonprod for getting to the splunk instances.
+
+COMMON FOR BOTH STRATEGIES 
+
+For both solutions, we will need the following:
+
+1) An S3 Bucket (R2D2-Bucket)
+
+Give this bucket no special permissions, and no public access. Should only be readable by the S3 API and authorized accounts/roles
+
+2) IAM Role that allows full control of the above S3 Bucket (Bucket-Role)
+
+This role will be attached to our logging server, to allow it to use the S3 bucket.  
+
+3) VPC Endpoint to allow access to S3 without internet access
+
+This will be in the logging server's VPC, so that the logging server can use S3 without direct internet access. 
+
+4) Install Splunk Enterprise
+
+Details on installing Splunk Enterprise are outside the scope of this document. But the gist is:
+
+
+	# wget -O splunk-7.3.0-657388c7a488-linux-2.6-x86_64.rpm 'https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=linux&version=7.3.0&product=splunk&filename=splunk-7.3.0-657388c7a488-linux-2.6-x86_64.rpm&wget=true'
+	# yum -y install ./$(ls splunk*)
+
+You might have to download the package manually if the logging server does not have internet access. You may also be forced to login to splunk to get any updated package. 	
+
+
+
+
+#################################################################################
+#KEEPING LOGS IN R2D2
+#################################################################################
+
+
+If logs are to be kept in R2D2, I suggest we use S3 as an archive system, and keep fresh logs on the Splunk Enterprise server itself. We can use S3 Glacier to reduce costs, but since it uses the same API setup will be the same. 
+
+1) set up S3FS on the splunk logging server. 
+
+Log into the logging server as root. (sudo su)
+
+Get the S3FS source code onto the logging server. My recommendation is to put it into another S3 bucket so the logging server can download it. 
+Releases can be found here: https://github.com/s3fs-fuse/s3fs-fuse/releases
+
+
+Run the following commands:
+sudo yum update
+sudo yum install automake fuse fuse-devel gcc-c++ git libcurl-devel libxml2-devel make openssl-devel
+
+cd into the s3fs source folder
+
+Run the following commands:
+
+./autogen.sh
+./configure --prefix=/usr --with-openssl
+make
+sudo make install
+
+Mount the S3FS to the folder you would like (recommend /var/S3Archive/)
+
+# s3fs R2D2-Bucket /var/S3Archive/ -o iam_role="Bucket-Role"
+
+
+2) Modify Splunk to use the S3 Bucket
+
+Now that the S3FS system is mounted, we need to tell Splunk to archive it's data there. 
+
+# cp /opt/splunk/etc/system/default/indexes.conf /opt/splunk/etc/system/local/ 
+# chmod 600 /opt/splunk/etc/system/local/indexes.conf
+# vi /opt/splunk/etc/system/local/indexes.conf
+
+Set coldToFrozenDir = /var/S3Archive/
+
+3) Fine tune settings
+
+Splunk Data lifecycle goes from Hot -> Warm -> Cold -> Frozen. By default frozen data gets deleted. By setting the coldToFrozenDir above, we make it archive it to that directory, which is now an S3 File System. 
+
+There is still fine tuning to be done on the management of this data lifecycle. We have not done this fine tuning yet. 
+
+
+
+#################################################################################
+#SHARING LOGS TO USCIS
+#################################################################################
+
+In order to share the logs, we will use the smart store to use S3 as an active file system for the Splunk Log Database. This S3 Bucket can be read by USCIS to get the logs in a similar fashion. 
+
+
+1) Allow the S3 Bucket to be read by USCIS
+
+Give proper permissions so the S3 bucket being used can be read by USCIS
+
+2) Set up Smart Store. 
+
+Run the following commands:
+
+```
+cp /opt/splunk/etc/system/default/indexes.conf /opt/splunk/etc/system/local/ 
+chmod 600 /opt/splunk/etc/system/local/indexes.conf
+vi /opt/splunk/etc/system/local/indexes.conf
+```
+In indexex.conf, add the following configuration blocks before the first index is configured:
+
+[volume:s3]
+storageType = remote
+path = s3://R2D2-Bucket/
+
+
+[default]
+remotePath = volume:s3/$_index_name
+
+This will make the logging server use the S3 Bucket
+
+
+3) Fine Tuning
+Fine tuning is required to make sure that the queries work as expected and the logs are still accessible. This tuning has not been done yet. 
+
+
+
+#########################################
+# After completing setup do switch over #
+#########################################
+
+1. update ip address in yml file.
+
+
+
+!!!!!!!!!!!!BELOW MAY OR MAYNOT BE RIGHT NEED TO VERIFY!!!!!!!!!!!!!!!!!!!!!!!!
+NOTE: To get to proxy, need to launch jump box from APP stream Images -> image builder -> (button on image builder page) connect
+
+1.5) Go to ssh (git terminal) use ssh (up arrow to auto complete for ssh into proxy ec2 instance)
+
+2) Make sure manual exception is made in the squid proxy (security groups, iptables, and squid itself
+
+Check iptables, make sure one block contains  10.50.0.0/16
+
+```
+sudo su
+iptables -nL
+```
+================================Example Output====================================
+Chain INPUT (policy DROP)
+target     prot opt source               destination
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0
+DROP       all  --  127.0.0.0/8          0.0.0.0/0
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED
+ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:22 state NEW
+ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            udp dpt:68 state NEW
+ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            udp dpt:123 state NEW
+ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            udp dpt:323 state NEW
+ACCEPT     all  --  10.50.0.0/16         0.0.0.0/0
+
+Chain FORWARD (policy DROP)
+target     prot opt source               destination
+
+Chain OUTPUT (policy DROP)
+target     prot opt source               destination
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            state NEW,ESTABLISHED
+ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            state NEW,ESTABLISHED
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            state NEW,ESTABLISHED
+===================================================================================
+
+
+To add iptable address do the following:
+iptables -I INPUT 1 -p all -s 10.50.0.0/16  -j ACCEPT
+
+
+Now lets check the squid proxy stuff:
+
+Run the below command
+```
+cd /etc/squid/
+cat squid.conf
+```
+
+if its a different range, change it to that range, then restart the server from the
+aws console make sure you check after redeploying proxies, because it will be something like 10.50.4.0/24 <-wrong setting
+****Check Squid configuration, make sure that the following block exists with the item below*****
+acl appstream src 10.50.0.0/16 <- correct setting
+
+.
+.
+.
+#
+# INSERT YOUR OWN RULE(S) HERE TO ALLOW ACCESS FROM YOUR CLIENTS
+#
+acl appstream src 10.50.0.0/16
+.
+.
+.

@@ -1,0 +1,66 @@
+Jenkins Notes
+
+During:
+
+Jenkins Autostart if server restarts
+    shouldn't be too hard
+
+Jenkins Temp Internet Access
+    3 ways to do this:
+        direct via 1 subnet and IG
+        indirect via 2 subnets and nat
+        indirect via proxy
+    personally leaning towards 2 subnet solution
+    nonprod made subnet too big, would have to start from scratch, is ok though. 
+
+Where to send jenkins logs?
+    put in user
+
+
+BEFORE Implementation:
+
+server splot:
+    2 Jenkins servers
+    1 prod, 1 nonprod
+    use same jenkins for prod fic/prof and prod user/smd
+
+locations:
+    admin VPC, keep it relatively separate from the system
+    need to create admin vpc for nonprod
+
+
+connectivity:
+    aws console
+        can use VPC endpoints
+    github 
+        might not be possible, due to VPC issues
+        TRICKY (need guidance)
+        workarounds:
+            use s3? - slow and inefficient
+            host git server on jenkins itself:
+                make script to mirror git repo to run from gfe
+    appstream
+        need internet connection OR can go via VPC
+    proxies?
+        i dont think it should have access
+
+automation as code:
+    instead of manually configuring jobs, turn them into a pipeline
+
+
+jobs:
+    redeploy proxies
+    switch out appstream image
+        supply parameters
+    move lambdas and alerts to jenkins
+        cons
+            dont fix what isnt broken
+        pros
+            have all automation in single location
+        decision:
+            go forward, but low priority
+
+    build image? (TRICKY/Long term)
+        need to find how the imagebuilder GUI works
+    test proxy connectivity
+        needs connectivity to appstream, can do via VPC pairing

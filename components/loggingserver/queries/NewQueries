@@ -1,0 +1,31 @@
+sourcetype="appstream_session" 
+| rename EniPrivateIpAddress as WinIp
+| eval SessionMinute = strftime(_time,"%Y-%m-%d %H:%M") 
+| dedup UserId,SessionMinute,WinIp
+| table UserId,SessionMinute, WinIp
+
+
+sourcetype="squid:access"
+| rename src_ip as WinIp
+| eval SessionMinute = strftime(_time,"%Y-%m-%d %H:%M") 
+| table SessionMinute, WinIp, host, url
+| dedup SessionMinute, WinIp, host, url
+
+
+sourcetype="squid:access"
+| rename src_ip as WinIp
+| eval SessionMinute = strftime(_time,"%Y-%m-%d %H:%M") 
+| table SessionMinute, WinIp, host, url
+| dedup SessionMinute, WinIp, host, url
+| join type=left SessionMinute, WinIp 
+    [search 
+sourcetype="appstream_session" 
+| rename EniPrivateIpAddress as WinIp
+| eval SessionMinute = strftime(_time,"%Y-%m-%d %H:%M") 
+| dedup UserId,SessionMinute,WinIp
+| table UserId,SessionMinute, WinIp
+    ]
+
+/opt/splunk/bin/splunk search 'sourcetype="squid:access" | rename src_ip as WinIp | eval SessionMinute = strftime(_time,"%Y-%m-%d %H:%M") | table SessionMinute, WinIp, host | dedup SessionMinute, WinIp, host'  -earliest_time '-1m' -preview 0 -maxout 0 -output csv 
+
+/opt/splunk/bin/splunk search 'sourcetype="appstream_session" | rename EniPrivateIpAddress as WinIp | eval SessionMinute = strftime(_time,"%Y-%m-%d %H:%M") | dedup UserId,SessionMinute,WinIp | table UserId,SessionMinute, WinIp'  -earliest_time '-1m' -preview 0 -maxout 0 -output csv 

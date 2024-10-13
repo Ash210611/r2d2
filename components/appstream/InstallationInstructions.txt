@@ -1,0 +1,17 @@
+Installation Instructions for R2D2 Appstream
+
+1) Copy over Chrome Windows Enterprise Installer 64bit
+
+2) Install CookieGuard
+  a) components/appstream/SessionScripts/config.json -> C:\AppStream
+
+3) firefox setup
+  a) components/appstream/firefox/autoconfig.js -> C:\Program Files\Mozilla Firefox\defaults\pref\autoconfig.js
+  b) components/appstream/firefox/mozilla.cfg -> C:\Program Files\Mozilla Firefox\mozilla.cfg
+  NOTE: MUST PRESERVE THE LF LINE ENDINGS IN BOTH FILES.
+  Notepad in windows 2012 server can actually tell you if its LF or CRLF.
+
+4) Install the ProxySwitcher
+  a) rename nukpg to zip, unzip, put in folder AutoConfig
+  b) Import it manually ugh
+  c) grab most of the contents of the folder and move it over into C:\AutoConfig

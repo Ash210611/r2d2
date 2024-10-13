@@ -1,0 +1,52 @@
+<form>
+  <label>Find User Traffic by UserId</label>
+  <fieldset submitButton="false" autoRun="false">
+    <input type="dropdown" token="UserIdSelected">
+      <label>UserId</label>
+      <fieldForLabel>UserId</fieldForLabel>
+      <fieldForValue>UserId</fieldForValue>
+      <search>
+        <query>sourcetype="appstream_session" 
+| dedup UserId  
+| sort UserId</query>
+        <earliest>-90d@d</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="text" token="s_uri">
+      <label>URI search keyword</label>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>User Traffic</title>
+      <table>
+        <search>
+          <query>sourcetype="appstream_session" 
+| rename EniPrivateIpAddress as WinIp
+| where UserId="$UserIdSelected$" 
+| stats min(_time) as SessionBegin, max(_time) as SessionEnd by UserId, WinIp
+| eval SessionBegin = SessionBegin-90
+| eval SessionEnd = SessionEnd+90
+| map search="search sourcetype="squid:access" $s_uri$ earliest=$$SessionBegin$$ latest=$$SessionEnd$$ 
+    | where src_ip="$$WinIp$$" 
+    | fields url" maxsearches=50000
+| table  url, _time   
+| sort 100000 -_time
+    </query>
+          <earliest>-90d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

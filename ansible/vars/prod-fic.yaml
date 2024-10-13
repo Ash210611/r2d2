@@ -1,0 +1,91 @@
+---
+env:                          "prodfic"
+homebase_region:              "virginia"
+homebase_cfn_name:            "homebase-{{env}}-{{homebase_region}}"
+homebase_vpc_num:              70
+logging_size:                 "m5.large"
+keyname_logging:              "prodfic-logging"
+keyname_proxy:                "proxy_prodfic"
+hardened_image_id:            "ami-0ca8f41929d82401c"
+base_appstream_image_name:    "AppStream-WinServer2019-09-18-2019"
+fleet_appstream_image_name:   "AppStream-WinServer2019-09-18-2019"
+hosted_zone_name:             "r2d2hostedzone-fic"
+s3_config_bucket:             "prodfic-configuration"
+proxy_size:                   "t3.large"
+iam_profile:                  "ProxyRole"
+lambda_role:                  "arn:aws:iam::772618793657:role/Proxy_NatIPrenew_role"
+homebase_color_subnet_num:
+  blue:  16
+  green: 32
+  none:  48
+region_list:
+  - name:     virginia
+    vpc_num:  40
+  - name:     ohio
+    vpc_num:  71
+  - name:     oregon
+    vpc_num:  72
+  - name:     california
+    vpc_num:  73
+  - name:     ireland
+    vpc_num:  49
+  - name:     london
+    vpc_num:  77
+  - name:     paris
+    vpc_num:  48
+  - name:     frankfurt
+    vpc_num:  75
+  - name:     stockholm
+    vpc_num:  41
+  - name:     montreal
+    vpc_num:  42
+  - name:     singapore
+    vpc_num:  47
+  - name:     sydney
+    vpc_num:  46
+  - name:     tokyo
+    vpc_num:  45
+  - name:     seoul
+    vpc_num:  44
+  - name:     mumbai
+    vpc_num:  43
+  - name:     saopaulo
+    vpc_num:  76
+  - name:     bahrain
+    vpc_num:  79
+  - name:     osaka
+    vpc_num:  74
+  - name:     milan
+    vpc_num:  78
+  - name:     capetown
+    vpc_num:  80
+  - name:     zurich
+    vpc_num:  36
+  - name:     spain
+    vpc_num:  37
+  - name:     jakarta
+    vpc_num:  38
+  - name:     hyderabad
+    vpc_num:  39
+  - name:     uae
+    vpc_num:  81
+  - name:     melbourne
+    vpc_num:  83
+  
+s3_files:
+  - name: route53dns.json
+    path: components/squidproxy/config/route53dns.json
+  - name: user-seed.conf
+    path: components/squidproxy/config/user-seed.conf
+  - name: squid.conf
+    path: components/squidproxy/config/squid.conf
+  - name: inputs.conf
+    path: components/squidproxy/config/inputs.conf
+  - name: outputs.conf
+    path: components/squidproxy/config/outputs.conf
+s3_replacement:
+  - varName:  __APPSTREAMSOURCE__
+    value:    "10.{{homebase_vpc_num}}.{{homebase_color_subnet_num[color]}}.0/21"
+  - varName:  __HOSTEDZONENAME__
+    value:    "{{hosted_zone_name}}"
+

@@ -1,0 +1,6 @@
+Chrome:
+C:\BrowserData\Chrome\Default\Local Storage\leveldb\000003.log
+
+Firefox:
+C:\BrowserData\Firefox\prefs.json
+C:\BrowserData\Firefox\storage\default\moz-extension+++eff1b305-e77b-48b6-9399-91c6fa68fabe^userContextId=4294967295\idb\3647222921wleabcEoxlt-eengsairo.sqlite

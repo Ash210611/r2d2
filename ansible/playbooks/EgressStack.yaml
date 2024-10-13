@@ -1,0 +1,137 @@
+---
+# This is called by the ColorStack.yaml
+# item is a member of the region_list in the env file
+# This unpacks it into an easy to use and read form
+# so we don't have huge lines of code
+- set_fact:
+    region:  "{{item['name']}}"
+    vpc_num: "{{item['vpc_num']}}"
+
+
+# Now we have everything in place for the cloudformation to run
+# Using the variables set by the previous task list, ColorStack.yaml
+
+- name: "{{color}} Egress Stack for {{region}}"
+  cloudformation:
+    stack_name: "egress-{{env}}-{{color}}-{{region}}"
+    state: "present"
+    region: "{{reverse_envmapping[region]}}"
+    disable_rollback: false
+    template_body: "{{ lookup('file', '../cloudformation/EgressRegionStackCFN.yaml' )}}"
+    template_parameters: 
+      FormattedRegion: "{{region}}"
+      EnvName: "{{env}}"
+      Color: "{{color}}"
+      CidrBlock: "10.{{vpc_num}}.0.0/16"
+      ProxyCidrBlock: "10.{{vpc_num}}.1.0/24"
+      GatewayCidrBlock: "10.{{vpc_num}}.2.0/24"
+      AppStreamVPC: "{{homebase_output['VPCId']}}"
+      AppStreamVPCRegion: "{{reverse_envmapping[homebase_region]}}"
+      HomebaseVpcCidrBlock: "{{homebase_output['HomebaseCidr']}}"
+      HomebaseFleetCidrBlock:  "{{homebase_color_output['FleetCidr']}}"
+      HomebaseJumpboxCidrBlock:  "{{homebase_output['JumpboxCidr']}}"
+      ProxyImageId:   "{{hardened_images[reverse_envmapping[region]]}}"
+      ProxyInstanceType:  "{{proxy_size}}"
+      KeyName: "{{keyname_proxy}}"
+      IamInstanceProfile: "{{iam_profile}}"
+      HostedZoneId: "{{homebase_output['HostedZoneId']}}"
+      S3Bucket: "{{s3_config_bucket}}"
+
+
+# Few more cleanup tasks to do, so we grab the output of the cloudformation
+# Simular to how we got the output in ColorStack.yaml, we filter it
+- name: Get Egress Region Color CFN info
+  cloudformation_info:
+    region: "{{reverse_envmapping[region]}}"
+    stack_name: "egress-{{env}}-{{color}}-{{region}}"
+  register: egress_color_cfn
+
+# We need the name of the cloudformation stack in order to easily filter the data
+- set_fact:
+    egress_color_cfn_name: "egress-{{env}}-{{color}}-{{region}}"
+
+# Now we have the egress stack output in an easy to use form
+- name: Set egress color output
+  set_fact:
+    egress_color_output: "{{egress_color_cfn['cloudformation'][egress_color_cfn_name]['stack_outputs']}}"
+
+# Once polish is applied, we can remove, keeping for debug purposes
+- debug:
+    var: egress_color_output
+
+
+# Now we need to tag the VPCPeeringConnection
+# When this was written, there was no tag support in cloudformation itself
+# Looking at the documentation now, there is. 
+# So it is likely this whole section can be removed
+# Get our account ID
+- name: get account id
+  shell: 
+    cmd: "aws sts get-caller-identity"
+  register: identity
+
+- set_fact:
+    account_info: "{{identity.stdout|from_json}}"
+
+- debug:
+    var: account_info
+
+# Generate the command to run, that tags the VPCPeeringConnection
+# TODO: generate the ARN elsewhere so we can not have this be a huge line
+# TODO: Tag the VPCPeeringConnection in the cloudformation Script
+- set_fact:
+    command_to_run: "aws resourcegroupstaggingapi tag-resources --resource-arn-list arn:aws:ec2:us-east-1:{{account_info['Account']}}:vpc-peering-connection/{{egress_color_output['VpcPeeringConnectionId']}} --tags Name={{env}}_{{homebase_region}}_to_{{region}} --region {{reverse_envmapping[homebase_region]}}"
+
+#Debug the command to run
+- debug:
+    var: command_to_run
+
+# Actually run the command
+# Tags the VPCPeeringConnection
+- name: tag homebase vpcpeeringconnection
+  shell: "{{command_to_run}}"
+
+
+# Setup the lambdas to rotate the NAT gateways
+# First we need to set up the lambda deployment package
+# Which is a zip file
+- name: Archive the lambda code
+  archive:
+    format: zip
+    path: "../components/natgateway/rotate_nat_gateways.py"
+    dest: ./tmp/rotate_nat.zip
+
+- name: Create Ip rotations
+  lambda:
+    name: "RotateIP-{{env}}-{{region}}-{{color}}"
+    state: present
+    zip_file: ./tmp/rotate_nat.zip
+    runtime: 'python3.7'
+    role: "{{lambda_role}}"
+    handler: 'rotate_nat_gateways.lambda_handler'
+    region: "{{reverse_envmapping[region]}}"
+    timeout: 900
+    environment_variables:
+      nat_regex: "natgateway_{{env}}_{{region}}_{{color}}"
+      subnet_id: "{{egress_color_output['GatewaySubnet']}}"
+      route_table: "egressroutetable_{{env}}_{{region}}_{{color}}"
+
+
+
+- name: debug the vpc_num
+  debug:
+    var: vpc_num
+
+# Build the bridge stack between the egress vpc and the homebase
+- name: "{{color}} Bridge Stack for {{region}}"
+  cloudformation:
+    stack_name: "egressbridge-{{env}}-{{color}}-{{region}}"
+    state: "present"
+    region: "{{reverse_envmapping[homebase_region]}}"
+    disable_rollback: true
+    template_body: "{{ lookup('file', '../cloudformation/EgressBridgeCFN.yaml' )}}"
+    template_parameters: 
+      ProxyVpcCidrBlock: "10.{{vpc_num}}.1.0/24"
+      VpcPeeringConnectionId: "{{egress_color_output['VpcPeeringConnectionId']}}"
+      HomebaseRouteTable: "{{homebase_color_output['R2D2RouteTable']}}"
+      HomebaseColorlessRouteTable: "{{homebase_output['R2D2RouteTable']}}"

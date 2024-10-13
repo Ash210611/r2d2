@@ -1,0 +1,423 @@
+# Resources
+
+# R2D2Vpc
+#   The homebase VPC. 
+
+# HostedZone
+#   The Route53 Hosted Zone, the dns solution that we use
+
+# BuilderSubnet
+#   The Subnet that the ImageBuilder resides in
+
+# LoggingSubnet
+#   The Subnet that the logging server resides in
+
+# JumpboxSubnet
+#   The Subnet that the Jumpbox resides in
+
+# R2D2RouteTable
+#   Main RouteTable for the homebase
+
+# LoggingAssosiateRouteTable
+#   Assosiates the main route table with the logging subnet
+
+# JumpboxAssosiateRouteTable
+#   Asossiates the main route table with the jumpbox subnet 
+
+# BuilderRouteTable
+#   Route Table to use with the builder subnet
+
+# BuilderAssosiateRouteTable
+#   Assosiates the BuilderRouteTable with the BuilderSubnet
+
+# JumpboxSG
+#   SecurityGroup to use with the Jumpbox
+
+# R2D2LiveAppStreamStack
+#   AppStream stack that is live
+
+# R2D2PreLiveAppStreamStack
+#   AppStream stack that is pre-live
+
+# ImageBuilderAppStream
+#   ImageBuilder, used for building the fleet images
+
+# JumpBoxAppStream
+#   Jumpbox, currently an image builder, but not for making images
+
+# AppStreamSG
+#   Security Group to use with AppStream fleet
+
+# LoggingSG
+#   Security Group to use for the logging server 
+
+# LoggingInstance
+#   The logging server to use 
+
+# VPCEndpointForAppstream
+#   VPC endpoint allows logging server to access the aws api for appstream
+
+# VPCEndpointForS3
+#   VPC endpoint allows logging server to access S3
+
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  EnvName:
+    Type: String
+    Description: The Env Name (nonprod, public, prod)
+  CidrBlockVPC:
+    Type: String
+    Description: CIDR block of the VPC
+  CidrBlockBuilderSubnet:
+    Type: String
+    Description: CIDR block of the subnet
+  CidrBlockLoggingSubnet:
+    Type: String
+    Description: CIDR block of the subnet
+  CidrBlockJumpboxSubnet:
+    Type: String
+    Description: CIDR block of the subnet
+  LoggingImageId:
+    Type: AWS::EC2::Image::Id
+    Description: Image Id (CIS AWS Linux Lvl 1)
+  LoggingInstanceType:
+    Type: String
+    Description: The instance type
+  KeyName:
+    Type: String
+    Description: Name of the Key
+  AppStreamBuilderImageName:
+    Type: String
+    Description: The name of the image to use for the builder
+  AppStreamJumpboxImageName:
+    Type: String
+    Description: The name of the image to use for the builder
+  HostedZoneName:
+    Type: String
+    Description: Name of the hosted zone
+# These maps may be able to be removed, since we have the mappings in the envmapping file
+Mappings:
+  RegionMap:
+    us-east-1: 
+      DisplayName: virginia
+    us-east-2: 
+      DisplayName: ohio
+    us-west-2: 
+      DisplayName: oregon
+    eu-west-1:
+      DisplayName: ireland
+    eu-west-2:
+      DisplayName: london
+    eu-west-3:
+      DisplayName: paris
+    eu-central-1:
+      DisplayName: frankfurt
+    ap-southeast-1:
+      DisplayName: singapore
+    ap-southeast-2:
+      DisplayName: sydney
+    ap-northeast-1:
+      DisplayName: tokyo
+    ap-northeast-2:
+      DisplayName: seoul
+    ap-south-1:
+      DisplayName: mumbai
+    ca-central-1:
+      DisplayName: montreal
+    us-west-1:
+      DisplayName: california
+    eu-north-1:
+      DisplayName: stockholm
+    sa-east-1:
+      DisplayName: saopaulo
+    me-south-1: 
+      DisplayName: bahrain
+    af-south-1: 
+      DisplayName: capetown
+    ap-northeast-3:
+      DisplayName: osaka
+    eu-south-1: 
+      DisplayName: milan
+    eu-south-2:
+      DisplayName: spain
+    eu-central-2: 
+      DisplayName: zurich
+    ap-southeast-3: 
+      DisplayName: jakarta
+    ap-south-2:
+      DisplayName: hyderabad
+    me-central-1: 
+      DisplayName: uae
+Resources:
+  R2D2Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+     CidrBlock: !Ref CidrBlockVPC
+     EnableDnsHostnames: True
+     EnableDnsSupport: True
+     Tags:
+       -
+         Key: "Name"
+         Value: !Sub
+            - "homevpc_${EnvName}_${Region}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  HostedZone:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      Name: !Ref HostedZoneName
+      VPCs:
+        -
+          VPCId: !Ref R2D2Vpc
+          VPCRegion: !Ref "AWS::Region"
+  BuilderSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref CidrBlockBuilderSubnet
+      VpcId: !Ref R2D2Vpc
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub
+            - "buildersubnet_${EnvName}_${Region}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  LoggingSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref CidrBlockLoggingSubnet
+      VpcId: !Ref R2D2Vpc
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub
+            - "loggingsubnet_${EnvName}_${Region}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  JumpboxSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: !Ref CidrBlockJumpboxSubnet
+      VpcId: !Ref R2D2Vpc
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub
+            - "jumpboxsubnet_${EnvName}_${Region}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  R2D2RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref R2D2Vpc
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub
+            - "mainroutetable_${EnvName}_${Region}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  LoggingAssosiateRouteTable:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref LoggingSubnet
+      RouteTableId: !Ref R2D2RouteTable
+  JumpboxAssosiateRouteTable:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref JumpboxSubnet
+      RouteTableId: !Ref R2D2RouteTable
+  BuilderRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref R2D2Vpc
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub
+            - "builderroutetable_${EnvName}_${Region}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  BuilderAssosiateRouteTable:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref BuilderSubnet
+      RouteTableId: !Ref BuilderRouteTable
+  JumpboxSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SG for Jumpbox
+      GroupName: JumpboxSG
+      VpcId: !Ref R2D2Vpc
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub
+            - "jumpboxsg_${EnvName}_${Region}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  # R2D2LiveAppStreamStack:
+  #   Type: AWS::AppStream::Stack
+  #   Properties:
+  #     ApplicationSettings:
+  #       Enabled: False
+  #     Description: Live R2D2 Stack
+  #     DisplayName: Live R2D2 Stack
+  #     Name: Live_R2D2_Stack
+  #     UserSettings:
+  #       - Action: CLIPBOARD_COPY_FROM_LOCAL_DEVICE
+  #         Permission: ENABLED
+  #       - Action: CLIPBOARD_COPY_TO_LOCAL_DEVICE
+  #         Permission: ENABLED
+  #       - Action: FILE_DOWNLOAD
+  #         Permission: ENABLED
+  #       - Action: FILE_UPLOAD
+  #         Permission: ENABLED
+  #       - Action: PRINTING_TO_LOCAL_DEVICE
+  #         Permission: ENABLED
+  # R2D2PreLiveAppStreamStack:
+  #   Type: AWS::AppStream::Stack
+  #   Properties:
+  #     ApplicationSettings:
+  #       Enabled: False
+  #     Description: Prelive R2D2 Stack
+  #     DisplayName: Prelive R2D2 Stack
+  #     Name: PreLive_R2D2_Stack
+  #     UserSettings:
+  #       - Action: CLIPBOARD_COPY_FROM_LOCAL_DEVICE
+  #         Permission: ENABLED
+  #       - Action: CLIPBOARD_COPY_TO_LOCAL_DEVICE
+  #         Permission: ENABLED
+  #       - Action: FILE_DOWNLOAD
+  #         Permission: ENABLED
+  #       - Action: FILE_UPLOAD
+  #         Permission: ENABLED
+  #       - Action: PRINTING_TO_LOCAL_DEVICE
+  #         Permission: ENABLED
+  # ImageBuilderAppStream:
+  #   Type: AWS::AppStream::ImageBuilder
+  #   Properties:
+  #     EnableDefaultInternetAccess: False
+  #     InstanceType: stream.standard.medium
+  #     Name: !Sub
+  #       - "builder_${EnvName}_${Region}"
+  #       - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  #     ImageName: !Ref AppStreamBuilderImageName
+  #     VpcConfig:
+  #       SecurityGroupIds:
+  #         - !Ref AppStreamSG
+  #       SubnetIds:
+  #         - !Ref BuilderSubnet
+  # JumpBoxAppStream:
+  #   Type: AWS::AppStream::ImageBuilder
+  #   Properties:
+  #     EnableDefaultInternetAccess: False
+  #     InstanceType: stream.standard.medium
+  #     Name: !Sub
+  #       - "jumpbox_${EnvName}_${Region}"
+  #       - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  #     ImageName: !Ref AppStreamJumpboxImageName
+  #     VpcConfig:
+  #       SecurityGroupIds:
+  #         - !Ref JumpboxSG
+  #       SubnetIds:
+  #         - !Ref JumpboxSubnet
+  AppStreamSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SG for Jumpbox and Builder
+      GroupName: nonfleetsg
+      VpcId: !Ref R2D2Vpc
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub
+            - "jumpbuildersg_${EnvName}_${Region}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  LoggingSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SG for Logging
+      GroupName: LoggingSG
+      VpcId: !Ref R2D2Vpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          SourceSecurityGroupId: !Ref JumpboxSG
+        - IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+          SourceSecurityGroupId: !Ref JumpboxSG
+        - IpProtocol: tcp
+          FromPort: 9997
+          ToPort: 9997
+          CidrIp: 10.0.0.0/8
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub
+            - "loggingsg_${EnvName}_${Region}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  LoggingInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref LoggingImageId
+      InstanceType: !Ref LoggingInstanceType
+      KeyName: !Ref KeyName
+      SecurityGroupIds:
+       - !Ref LoggingSG
+      SubnetId: !Ref LoggingSubnet
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub
+            - "loggingserver_${EnvName}_${Region}"
+            - Region: !FindInMap [RegionMap, !Ref "AWS::Region", DisplayName]
+  VPCEndpointForAppstream:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      PrivateDnsEnabled: True
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.appstream.api"
+      SubnetIds: 
+        - !Ref LoggingSubnet
+      VpcEndpointType: Interface
+      VpcId: !Ref R2D2Vpc
+  VPCEndpointForS3:
+    Type: AWS::EC2::VPCEndpoint
+    Properties: 
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.s3"
+      VpcEndpointType: Gateway
+      VpcId: !Ref R2D2Vpc
+      RouteTableIds:
+        - !Ref R2D2RouteTable
+Outputs:
+  VPCId:
+    Value: !Ref R2D2Vpc
+    Export:
+      Name: !Sub "${AWS::StackName}-R2D2Vpc"
+  BuilderSubnet:
+    Value: !Ref BuilderSubnet
+    Export:
+      Name: !Sub "${AWS::StackName}-BuilderSubnet"
+  LoggingSubnet:
+    Value: !Ref LoggingSubnet
+    Export:
+      Name: !Sub "${AWS::StackName}-LoggingSubnet"
+  JumpboxSubnet:
+    Value: !Ref JumpboxSubnet
+    Export:
+      Name: !Sub "${AWS::StackName}-JumpboxSubnet"
+  AppStreamSG:
+    Value: !Ref AppStreamSG
+    Export:
+      Name: !Sub "${AWS::StackName}-AppStreamSG"
+  HostedZoneId:
+    Value: !Ref HostedZone
+    Export:
+      Name: !Sub "${AWS::StackName}-HostedZoneId"
+  R2D2RouteTable:
+    Value: !Ref R2D2RouteTable
+  HomebaseCidr:
+    Value: !Ref CidrBlockVPC
+  BuilderCidr:
+    Value: !Ref CidrBlockBuilderSubnet
+  LoggingCidr:
+    Value: !Ref CidrBlockLoggingSubnet
+  JumpboxCidr:
+    Value: !Ref CidrBlockJumpboxSubnet
+  LoggingIP:
+    Value: !GetAtt LoggingInstance.PrivateIp

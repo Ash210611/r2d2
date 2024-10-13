@@ -1,0 +1,38 @@
+# Resources
+#
+# RouteToProxy
+#   The route to the egress region vpc across the peering connection
+#   It is attached to the colored route table in the homebase
+#
+# RouteToLoggingJumpbox
+#   The route to the egress region vpc across the peering connection
+#   It is attached to the colorless route table in the homebase
+
+
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  ProxyVpcCidrBlock:
+    Type: String
+    Description: CIDR block of the proxy vpc
+  VpcPeeringConnectionId:
+    Type: String
+    Description: Peering connection to route traffic to
+  HomebaseRouteTable:
+    Type: String
+    Description: RouteTable to add the route to
+  HomebaseColorlessRouteTable:
+    Type: String
+    Description: RouteTable for colorless
+Resources:
+  RouteToProxy:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: !Ref ProxyVpcCidrBlock
+      VpcPeeringConnectionId: !Ref VpcPeeringConnectionId
+      RouteTableId: !Ref HomebaseRouteTable
+  RouteToLoggingAndJumpbox:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: !Ref ProxyVpcCidrBlock
+      VpcPeeringConnectionId: !Ref VpcPeeringConnectionId
+      RouteTableId: !Ref HomebaseColorlessRouteTable

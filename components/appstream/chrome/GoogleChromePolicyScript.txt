@@ -1,0 +1,188 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fswiss\fcharset0 Helvetica-Bold;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww22280\viewh15960\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 # PowerShell script to apply Chrome policies on Windows\
+\
+# Define policies for Chrome\
+$chromeHomepage = "https://www.google.com"\
+$chromeUrlBlockList = @("https://www.twitch.tv", "https://www.threads.net")\
+$chromeUrlPopupList = @("solo-launcher.s3.amazonaws.com")\
+$chromeSafeBrowsingEnabled = 1\
+$chromeIncognitoModeAvailability = 1\
+$chromeSyncDisabled = 1\
+$chromeDefaultPopupsSetting = 2\
+$chromehistoryvalues = @("browsing_history","download_history","cookies_and_other_site_data","cached_images_and_files","password_signin","autofill","site_settings","hosted_app_data")\
+\
+\
+# Define registry paths\
+$chromeRegistryPath = "HKLM:\\SOFTWARE\\Policies\\Google\\Chrome"\
+$chromeUrlBlockListPath = "$chromeRegistryPath\\URLBlocklist"\
+$chromePoups = "$chromeRegistryPath\\PopupsAllowedForUrls"\
+$clearbrowsinghistoryPath = "$chromeRegistryPath\\ClearBrowsingDataOnExitList"\
+\
+\
+# Function to ensure a registry path exists\
+function Ensure-RegistryPath \{\
+    param (\
+        [string]$path\
+    )\
+    if (-not (Test-Path $path)) \{\
+        New-Item -Path $path -Force\
+    \}\
+\}\
+\
+# Function to apply Chrome policies\
+function Apply-ChromePolicies \{\
+    #For ensuring that the registry path exists\
+    Ensure-RegistryPath $chromeRegistryPath\
+\
+    #This policy sets Home Page for Chrome 
+\f1\b (New Policy)
+\f0\b0 \
+    Set-ItemProperty -Path $chromeRegistryPath -Name "HomepageLocation" -Value $chromeHomepage -Type String\
+\
+    #This policy enables Safe Browsing for Chrome 
+\f1\b (New Policy)
+\f0\b0 \
+    Set-ItemProperty -Path $chromeRegistryPath -Name "SafeBrowsingEnabled" -Value $chromeSafeBrowsingEnabled -Type DWord\
+\
+    #This policy enables or disbales Incognoto mode for Chrome 
+\f1\b (New Policy)
+\f0\b0 \
+    Set-ItemProperty -Path $chromeRegistryPath -Name "IncognitoModeAvailability" -Value $chromeIncognitoModeAvailability -Type DWord\
+\
+    #This policy enables or disables Sync for Chrome\
+    Set-ItemProperty -Path $chromeRegistryPath -Name "SyncDisabled" -Value $chromeSyncDisabled -Type DWord\
+\
+    #This policy sets Popup Settings  for Chrome\
+    Set-ItemProperty -Path $chromeRegistryPath -Name "DefaultPopupsSetting" -Value $chromeDefaultPopupsSetting -Type DWord\
+\
+    #This blocks sets up for the extensions that needs to be installed in chrome 
+\f1\b (Existing Policy)
+\f0\b0 \
+    # Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\ExtensionInstallForcelist" -Name 1 -Value "haebnnbpedcbhciplfhjjkbafijpncjl;https://clients2.google.com/service/update2/crx" -Type String\
+    # Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\ExtensionInstallForcelist" -Name 2 -Value "immpkjjlgappgfkkfieppnmlhakdmaab;https://clients2.google.com/service/update2/crx" -Type String\
+    # Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\ExtensionInstallForcelist" -Name 3 -Value "fkjbliednplpohojfpgnbpcppgdnhklb;https://clients2.google.com/service/update2/crx" -Type String\
+    # Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\ExtensionInstallForcelist" -Name 3 -Value "djflhoibgkdhkhhcedjiklpkjnoahfmg;https://clients2.google.com/service/update2/crx" -Type String\
+   \
+    #This policy sets Managed Bookmarks for Chrome 
+\f1\b (Existing Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name ManagedBookmarks -Type String -Value '[\{"toplevel_name": "Bookmarks"\},\{"name": "Homepage", "url": "https://solo-launcher.s3.amazonaws.com/homepage.html"\},\{"name": "Facebook Lookup-ID", "url": "https://lookup-id.com"\},\{"name": "Facebook CommentPicker", "url": "https://commentpicker.com"\},\{"name": "Twitter CodeNinja", "url": "https://codeofaninja.com/tools/find-twitter-id"\},\{"name": "Instagram Instafollowers", "url": "http://instafollowers.co/find-instagram-user-id"\}, \{"name": "YouTube CommentPicker", "url": "https://commentpicker.com/youtube-channel-id.php"\}]'\
+   \
+    #This policy enables or disables Bookmark Settings for Chrome 
+\f1\b (Existing Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name BookmarkBarEnabled -Type DWord -Value 1\
+\uc0\u8194 \u8194 \u8194 \u8194 \u8194 \
+    #This policy enables or disables AutoFill Address Settings for Chrome 
+\f1\b (New Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name AutofillAddressEnabled -Type DWord -Value 0\
+\
+    #This policy enables or disables saving passwords to the password manager 
+\f1\b (New Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name PasswordManagerEnabled -Type DWord -Value 0\
+\
+    #This policy enables or disables search suggestions 
+\f1\b (New Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name SearchSuggestEnabled -Type DWord -Value 0\
+\
+    #This policy enables or disables Translate 
+\f1\b (New Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name TranslateEnabled -Type DWord -Value 0\
+\
+    #This policy Block third party cookies 
+\f1\b (New Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name BlockThirdPartyCookies -Type DWord -Value 0\
+\uc0\u8194 \u8194 \u8194 \u8194 \u8194 \
+    #This policy enables or disables AutoFill Credit Card Settings for Chrome 
+\f1\b (New Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name AutofillCreditCardEnabled -Type DWord -Value 0\
+   \
+    #This policy enables or disables Shortcut Bookmark Settings for Chrome 
+\f1\b (ExistingPolicy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name ShowAppsShortcutInBookmarkBar -Type DWord -Value 0\
+\uc0\u8194 \u8194 \u8194 \u8194 \u8194 \
+    #This policy blocks extension for Chrome 
+\f1\b (New Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name BlockExternalExtensions -Type DWord -Value 1\
+   \
+    #This policy changes User Data Directory for Chrome 
+\f1\b (Existing Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name UserDataDir -Type String -Value "C:\\BrowserData\\Chrome\\"\
+   \
+    #This policy always check whether it is the default browser on startup (
+\f1\b Existing Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name DefaultBrowserSettingEnabled -Type DWord -Value 0\
+\
+    #This policy sets up the Privacy Sandbox Policies 
+\f1\b (New Policy)
+\f0\b0 \
+    #This policy allows you to Choose whether the Privacy Sandbox ad measurement setting can be disabled\
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name PrivacySandboxAdMeasurementEnabled -Type DWord -Value 0\
+\
+    #This policy allows you to Choose whether the Privacy Sandbox ad measurement setting can be disabled 
+\f1\b (New Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name PrivacySandboxAdTopicsEnabled -Type DWord -Value 0\
+\
+    #This policy allows you to Choose whether the Privacy Sandbox ad measurement setting can be disabled 
+\f1\b (New Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name PrivacySandboxPromptEnabled -Type DWord -Value 0\
+\
+    #This policy allows you to Choose whether the Privacy Sandbox ad measurement setting can be disabled 
+\f1\b (New Policy)
+\f0\b0 \
+    Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name PrivacySandboxSiteEnabledAdsEnabled -Type DWord -Value 0\
+\
+    #This group sets the proxy server settings in chrome 
+\f1\b (Existing Policy)
+\f0\b0 \
+    #Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Chrome\\" -Name ProxySettings -Type String -Value '\{"ProxyMode":"fixed_servers","ProxyServer":"none"\}'\
+    #Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Update\\" -Name ProxyMode -Type String -Value "fixed_servers"\
+    #Set-ItemProperty -Path "HKLM:\\Software\\Policies\\Google\\Update\\" -Name ProxyServer -Type String -Value "us-east-1.solohostedzone:3128"\
+\
+    #this sets up the url to be blocked in chrome\
+    Ensure-RegistryPath $chromeUrlBlockListPath\
+    for ($i = 0; $i -lt $chromeUrlBlockList.Count; $i++) \{\
+        New-ItemProperty -Path $chromeUrlBlockListPath -Name "$i" -Value $chromeUrlBlockList[$i] -PropertyType String -Force\
+    \}\
+\
+    #this sets up the pop-ups to be blocked in chrome 
+\f1\b (Existing Policy)
+\f0\b0 \
+    Ensure-RegistryPath $chromePoups\
+    for ($i = 0; $i -lt $chromeUrlPopupList.Count; $i++) \{\
+        New-ItemProperty -Path $chromePoups -Name "$i" -Value $chromeUrlPopupList[$i] -PropertyType String -Force\
+    \}\
+\
+    #This policy Clear Browsing Data on Exit 
+\f1\b (New Policy)
+\f0\b0 \
+    Ensure-RegistryPath $clearbrowsinghistoryPath\
+    for ($i = 0; $i -lt $chromehistoryvalues.Count; $i++) \{\
+       \
+        New-ItemProperty -Path $clearbrowsinghistoryPath -Name ([string]($i + 1)) -Value $chromehistoryvalues[$i] -PropertyType String -Force\
+    \}\
+    Write-Output "Chrome policies have been applied successfully."\
+\
+   \
+\}\
+\
+# Apply policies\
+Apply-ChromePolicies}

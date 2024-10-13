@@ -1,0 +1,36 @@
+sourcetype="appstream_session" 
+| rename EniPrivateIpAddress as WinIp
+| stats min(_time) as SessionBegin, max(_time) as SessionEnd by UserId, WinIp
+| eval SessionBegin = SessionBegin-90
+| eval SessionEnd = SessionEnd+90
+| table UserId, SessionBegin,SessionEnd, WinIp
+| map search="search sourcetype="squid:access"  earliest=$SessionBegin$ latest=$SessionEnd$ 
+    | where src_ip="$WinIp$" 
+    | eval UserId="$UserId$"
+    | eval SessionBegin="$SessionBegin$"
+    | eval SessionEnd = "$SessionEnd$"
+    | fields host,UserId,url,SessionBegin,SessionEnd"  maxsearches=50000 
+| eval SessionDay = strftime(_time,"%Y-%m-%d") 
+| eval SessionBegin = strftime(SessionBegin-14400, "%Y-%m-%d %H:%M:%S EST")
+| eval SessionEnd = strftime(SessionEnd-14400, "%Y-%m-%d %H:%M:%S EST")
+| dedup UserId, host,SessionBegin,SessionEnd,url
+| table  UserId, host,SessionBegin,SessionEnd,url
+| sort 100000 -_time
+
+
+sourcetype="appstream_session" 
+| rename EniPrivateIpAddress as WinIp
+| stats min(_time) as SessionBegin, max(_time) as SessionEnd by UserId, WinIp
+| eval SessionBegin = SessionBegin-90
+| eval SessionEnd = SessionEnd+90
+| table UserId, SessionBegin,SessionEnd, WinIp
+| map search="search sourcetype="squid:access"  earliest=$SessionBegin$ latest=$SessionEnd$ 
+    | where src_ip="$WinIp$" 
+    | eval UserId="$UserId$"
+    | eval SessionBegin="$SessionBegin$"
+    | eval SessionEnd = "$SessionEnd$"
+    | fields host,UserId,url,SessionBegin,SessionEnd"  maxsearches=50000 
+| eval SessionDay = strftime(_time,"%Y-%m-%d") 
+| dedup UserId,host,SessionDay
+| table UserId, host,SessionDay
+| stats count by host,SessionDay

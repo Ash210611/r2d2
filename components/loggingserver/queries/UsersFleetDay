@@ -1,0 +1,38 @@
+sourcetype="appstream-2" "Sessions{}.UserId"="*" 
+| rex field=_raw max_match=500 "(?sm)(\[|,).*?{(?<session>.*?)\}" 
+| fields session 
+| mvexpand session 
+| rex field=session "\"UserId\"\: \"(?<UserId>.*).*\"" 
+| rex field=session "\"FleetName\"\: \"(?<FleetName>.*).*\""
+| rex field=session "\"Id\"\: \"(?<SessionId>.*).*\"" 
+| eval time = _time-18000
+| eval SessionDay = strftime(time,"%Y-%m-%d")
+| dedup UserId,FleetName,SessionDay
+| table SessionDay,UserId, FleetName
+
+
+sourcetype="appstream-2"
+| rex field=_raw max_match=500 "(?sm)(\[|,).*?{(?<session>.*?)\}" 
+| fields session 
+| mvexpand session 
+| rex field=session "\"UserId\"\: \"(?<UserId>.*).*\"" 
+| rex field=session "\"FleetName\"\: \"(?<FleetName>.*).*\""
+| rex field=session "\"Id\"\: \"(?<SessionId>.*).*\""
+| join type=left SessionId
+    [ search sourcetype="agent.PhotonUser-too_small" 
+    |  fields SessionId, host]
+| join type=left host
+    [search sourcetype="WinEventLog:System" EventCode=4200 
+    | fields host, WinIP]
+| stats min(_time) as SessionBegin, max(_time) as SessionEnd by SessionId, UserId, host, WinIP, FleetName
+| eval SessionBeginTime=strftime(SessionBegin, "%m/%d/%y %H:%M:%S")
+| eval SessionEndTime=strftime(SessionEnd, "%m/%d/%y %H:%M:%S")
+| map search="search sourcetype="access-too_small"  earliest=$SessionBegin$ latest=$SessionEnd$ 
+    | eval UserId = $UserId$
+    | eval FleetName = $FleetName$
+    | where WinIP="$WinIP$" 
+    | fields uri,bytes, UserId,host" maxsearches=1000
+| eval time = _time-18000 
+| eval SessionDay = strftime(time,"%Y-%m-%d")
+| stats sum(bytes) by SessionDay,Host, UserId, uri 
+| table SessionDay, host, UserId, uri, bytes

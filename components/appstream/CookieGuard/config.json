@@ -1,0 +1,36 @@
+{
+  "SessionStart": {
+    "executables": [
+      {
+        "context": "system",
+        "filename": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "arguments": "-File \"C:\\AppStream\\SessionScripts\\CookieGuard.ps1\"",
+        "s3LogEnabled": true
+      },
+      {
+        "context": "user",
+        "filename": "",
+        "arguments": "",
+        "s3LogEnabled": true
+      }
+    ],
+    "waitingTime": 60
+  },
+  "SessionTermination": {
+    "executables": [
+      {
+        "context": "system",
+        "filename": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "arguments": "-File \"C:\\AppStream\\SessionScripts\\CookieGuard.ps1\"",
+        "s3LogEnabled": true
+      },
+      {
+        "context": "user",
+        "filename": "",
+        "arguments": "",
+        "s3LogEnabled": true
+      }
+    ],
+    "waitingTime": 60
+  }
+}

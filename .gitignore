@@ -1,0 +1,7 @@
+**/.DS_Store
+ansible/tmp/
+.vscode
+
+#We want the folder, but not the files in the folder except for the gitkeep
+Utilities/keyPairs/*
+!Utilities/keyPairs/.gitkeep

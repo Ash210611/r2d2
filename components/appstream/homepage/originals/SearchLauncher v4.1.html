@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="utf-8">
+	<title>Homepage Launcher</title>
+</head>
+
+<!-- JAVASCRIPT FOR 3 PRIMARY SEARCH BOXES-->
+	<script type="text/javascript">
+		//NAME SEASRCH. It simply takes the name as written and runs it against the following sites. 
+		function nameSearch(all) {
+			var searchalt = document.getElementById('searchaltchk');
+			
+			if (searchalt.checked) {
+				window.open('https://google.com/search?q=' + all, 'googlewindowname');
+				window.open('https://m.facebook.com/public/' + all, 'facebookwinname');	
+				window.open('https://google.com/search?q=site%3Ainstagram.com+' + all, 'IGwindowname');		
+				window.open('https://mobile.twitter.com/search/users?q=' + all, 'twitterwindowname');
+				window.open('https://www.youtube.com/results?search_query=' + all, 'youtubewindowname');}
+			else {
+				window.open('https://google.com/search?q=' + all, 'googlewindowname');
+				window.open('https://www.facebook.com/public?query=' + all, 'facebookwinname');	
+				window.open('https://gramuser.com/search/' + all, 'IGwindowname');		
+				window.open('https://mobile.twitter.com/search/users?q=' + all, 'twitterwindowname');
+				window.open('https://www.youtube.com/results?search_query=' + all, 'youtubewindowname');}
+			}
+			
+		
+		//EMAIL SEARCH FUNCTION. This function runs the whole email address against several sources (using the "inEmail" variable), and just the username against others (using the "hand" variable). ADDED "USERNAME" BUTTON. 
+		function searchEmail(inEmail) {
+			var atPosition;
+			var stringLength;
+			var username;
+			var domain;
+			var sEmails = inEmail.split("@");
+			var hand = sEmails[0];
+			var domain = sEmails[1];
+            var usernameonly = document.getElementById('usenmchk');
+			
+            if (usernameonly.checked) {
+                window.open('https://google.com/search?q=' + hand, 'googlewindowsn');
+				window.open('https://www.facebook.com/public?query=' + hand, 'facebookwindowsn');		
+			    window.open('https://instagram.com/' + hand, 'instagramwindowsn');			
+			    window.open('https://gramuser.com/search/' + hand, 'gramuserwindowsn');	
+			    window.open('https://mobile.twitter.com/search/users?q=' + hand, 'twitteruserwindowsn');
+			    window.open('https://www.youtube.com/results?search_query=' + hand, 'youtubewindowsn');} 
+            else {
+                //These are the queries against the whole email address:
+                window.open('https://google.com/search?q=' + inEmail, 'googlewindow');
+                                
+				//These are the queries against just the handle:
+                window.open('https://google.com/search?q=' + hand, 'googlewindowsn');
+				window.open('https://www.facebook.com/public?query=' + hand, 'facebookwindowsn');		
+			    window.open('https://instagram.com/' + hand, 'instagramwindowsn');			
+			    window.open('https://gramuser.com/search/' + hand, 'gramuserwindowsn');	
+			    window.open('https://mobile.twitter.com/search/users?q=' + hand, 'twitteruserwindowsn');
+			    window.open('https://www.youtube.com/results?search_query=' + hand, 'youtubewindowsn');} 
+                
+        }
+		
+		//PHONE SEARCH FUNCTION.
+		function phoneSearch(all) {
+            event.preventDefault();
+            var phoneexpand = document.getElementById('phoneexpand')
+
+			if (phoneexpand.checked) {
+                window.open('https://google.com/search?q=' + all, 'phngoogwindow');
+				window.open('https://www.reversephonelookup.com/results.php?phone=' + all, 'revphonewindow');
+				window.open('https://www.zabasearch.com/phone/' + all, 'zabawindow');
+				} 
+            else {
+				window.open('https://google.com/search?q=' + all, 'phngoogwindow');
+                }
+		}
+
+		//THIS SCRIPT CONTROLS THE CUSTOM SEARCHBOX
+		function customSearch(all) {
+            event.preventDefault();
+			var facebook = document.getElementById('custfb');
+			var google = document.getElementById('custgoog');
+			var gramuser = document.getElementById('gramuser');
+            var gramfind = document.getElementById('gramfind');
+            var gramfly = document.getElementById('gramfly');
+            var gramseek = document.getElementById('gramseek');
+            var gramreport = document.getElementById('gramreport');
+            var webstagram = document.getElementById('custwebsta');
+			var twitterpro = document.getElementById('custtwpro');
+			var youtube = document.getElementById('custyt');
+			var facebookm = document.getElementById('custfbm');
+			var googimg = document.getElementById('custgoogim');
+			var googig = document.getElementById('custgoogig');
+			var googtw = document.getElementById('custgoogtw');
+			var twittergeo = document.getElementById('custtwgeo');
+			var pipl = document.getElementById('custpip');
+			var tiktokusrnm = document.getElementById('tiktokusrnm');
+			var tiktok3rd = document.getElementById('tiktok3rd');
+            var soundcloud = document.getElementById('custsndcld');
+            var googlefb = document.getElementById('googfb');
+			var weibos = document.getElementById('weibo');
+						
+
+			if (facebook.checked) {
+				window.open('https://www.facebook.com/public?query=' + all, 'custfb')};
+			if (facebookm.checked) {
+				window.open('https://m.facebook.com/public/' + all, 'custfbm')};
+			if (googfb.checked) {
+				window.open('https://google.com/search?q=site%3Afacebook.com+' + all, 'fbgoogw')};
+			if (googig.checked) {
+				window.open('https://google.com/search?q=site%3Ainstagram.com+' + all, 'custgoogig')};
+			if (gramuser.checked) {
+				window.open('https://gramuser.com/search/' + all, 'custgramuser')};
+            if (gramfind.checked) {
+				window.open('https://gramfind.com/s/' + all, 'custgramfind')};
+            if (google.checked) {
+				window.open('https://google.com/search?q=' + all, 'custgoog')};
+			if (googimg.checked) {
+				window.open('https://www.google.com/search?q=' + all + '&tbm=isch&gws_rd=ssl', 'custgoogim')};
+			if (twitterpro.checked) {
+				window.open('https://twitter.com/search?f=users&vertical=default&q=' + all, 'custtwpro')};
+			if (twittergeo.checked) {
+				window.open('https://twitter.com/search?f=tweets&vertical=default&q=' + all + '&near=me', 'custtwgeo')};
+			if (googtw.checked) {
+				window.open('https://google.com/search?q=site%3Atwitter.com+' + all, 'custgoogtw')};
+			if (youtube.checked) {
+				window.open('https://www.youtube.com/results?search_query=' + all, 'custyt')};
+			if (tiktokusrnm.checked) {
+				window.open('https://www.tiktok.com/' + all, 'tiktokusrnm')};
+			if (tiktok3rd.checked) {
+				window.open('https://www.tiktokdom.com/search/' + all, 'custtiktok')};
+            if (soundcloud.checked) {
+                window.open('https://soundcloud.com/search?q=' + all, 'custsndcld')};
+			if (weibos.checked) {
+				window.open('https://s.weibo.com/weibo?q=' + all +'&Refer=index', 'weibowin')}
+            }
+		
+</script>
+ 
+<body>
+	<img src="FDNS_R2D2_1000x250_V15.png" alt="R2D2 LOGO" height="125" width="500" style="
+    position:  relative;
+    left: 2px;top: 21px">
+	<h1 style="color:#2e6c80;;position: relative;left: 24px" ><i>FDNS Search Launcher Homepage</i></h1>
+
+<div style=
+		"position: relative;
+		 left: 45px;
+		 top: 3px;
+		 min-width: 450px;
+		 width: 85%;">
+		<h2>Selector Searches</h2>
+		<b>Reminders: </b>Follow all Standard Operating Procedures (SOPs) and guidance set by HQ FDNS Social Media Division while using this tool. This tool is only to be used for conducting social media checks with no exception for <u>any</u> personal browsing.  R2D2 logs web traffic history and may be audited.<br>
+</div>
+ 
+<!-- MAIN THREE SEARCH BOXES -->
+<p><div style=
+         "min-width: 450px;
+		  width: 85%;
+          border: 2px #0000FF solid;
+          padding: 10px;
+		  position: relative;
+		  left: 45px;
+		  top: 10px;
+		  background-color: #b3cff6;">
+		<h3>Name Search:</h3>
+		<p>
+			Searches for the name exactly as typed. Platforms themselves may provide name variations or alternate spellings.  <u><b>Always</u></b> confirm potential IG matches on Instagram.com.<br> <br>
+			This field searches the following sites: <b>Google, Facebook, GramUser, Mobile Twitter, and YouTube.</b><br>
+			<i>The "Alternate Platform View" replaces two tabs: Facebook with Facebook Mobile and GramUser with a Google search of Instagram site.</i>
+		</p>
+		<form onsubmit="nameSearch(this.all.value); return false;">
+			<input type="text" name="all" id="ipall" size="40" value="">
+			<input type="submit" style="width:120px" value="Search Name"> 
+			<input type="checkbox" id="searchaltchk" class="checkitem"> Alternate Platform View
+	</div>
+	</p>
+		</form>
+
+<div style=
+         "min-width: 450px;
+		  width: 85%;
+          border: 2px #0000FF solid;
+          padding: 10px; 
+		  position: relative;
+		  left: 45px;
+		  top: 10px;
+		  background-color: #b3cff6;">
+		<h3>Email Address / Username Searches:</h3>
+		<p>
+            This field searches the following sites for email addresses ("Abc123@Xyz.com"): <b>Google</b>.<br><br>
+            This field searches the following sites for usernames or email prefixes ("Abc123"): <b>Google, Facebook, GramUser, Twitter, and YouTube.</b><br>
+		</p>
+		<form onsubmit="searchEmail(this.all.value); return false;">
+			<input type="text" name="all" id="ipall" size="40" value="">
+            <input type="submit" style="width:160px" value="Search Email/Username">
+            <input type="checkbox" id="usenmchk" class="checkitem"> Username Only
+		</form>
+
+	</div>
+	</p>
+
+<div style=
+         "min-width: 450px;
+		  width: 85%;
+          border: 2px #0000FF solid;
+          padding: 10px;
+		  position: relative;
+		  left: 45px;
+		  top: 10px;
+		  background-color: #b3cff6;">
+		<h3>Phone Number Search:</h3>
+		<p>
+			Searches exactly how the number is typed. It may be important to note country calling codes and phone number formatting from the country of origin. Additionally, adding country of origin + phone number may clarify results in Google. (ex. Honduras = +504 5555-5555). The optional platform pages use domestic phone numbers to search for individuals associated with phone number. Results similar to a white pages entry. <br><br>
+			This field searches the following sites: <b>Google</b>.<br>
+			Optional platforms pages ("555-666-7788"): <b>Reverse Phone Search, Zaba Search</b>.<br>
+		<form onsubmit="phoneSearch(this.all.value); return false;">
+			<input type="text" name="all" id="ipall" size="40" value="">
+			<input type="submit" style="width:120px" value="Search Phone #">
+			<input type="checkbox" id="phoneexpand" class="checkitem"> Optional Platforms Search (US phone numbers only)
+		</form>
+
+	</div>
+
+
+
+
+
+
+<!-- THIS BLOCK CONTROLS COLLAPSABLE DROPDOWN STYLE -->
+<style>
+	.collapsible {
+	  background-color: #f6f5bd;
+	  color: blue;
+	  cursor: pointer;
+	  padding: 5px;
+	  width: 100%;
+	  border: none;
+	  text-align: center;
+	  outline: none;
+	  font-size: 15px;
+	}
+	
+	.active, .collapsible:hover {
+	  background-color: rgb(240, 245, 208);
+	  color: gray;
+	}
+	
+	.content {
+	  padding: 0 18px;
+	  max-height: 0;
+	  overflow: hidden;
+	  transition: max-height 0.2s ease-out;
+	  background-color: #f0fab2;
+	}
+</style>
+
+<!-- CUSTOM SEARCH BOX -->
+<div style=
+        "min-width: 450px;
+        width: 85%;
+        border: 2px #0000FF solid;
+        padding: 10px;
+        position: relative;
+        left: 45px;
+        top: 10px;
+        margin: 20px 0;
+        background-color: #ced2d8;">
+	<h3>Individual Platform Search Bar:</h3>
+    <p>This search bar will run selectors against individually checked platforms.</p>
+    <!--<b>This search bar <i>DOES NOT CHANGE OR REPLACE</i> requirements for a complete social media check.</b> Always consult SOP and guidance on how to conduct a complete social media checks to ensure completeness.</b>
+	<p>-->		
+    
+    </p>  
+
+    <button class="collapsible"><u><b>Select social media platforms</b></u></button>
+
+	<!-- CHECK BOXES / PLATFORMS -->
+	<div class="content">
+    	<div class="container" style="margin:10px auto;">
+    These checkboxes will re-use windows between searches, same as the boxes above. There is no need to close tabs to run new selectors. <br>
+    		<p><div class="checkbox"> 
+            <b>Selectors for FB: <i>Names, aliases, usernames/email prefixes, and location information</i></b><br>
+            <input type="checkbox" id="custfb" class="checkitem"> Facebook (main)<br>
+			<input type="checkbox" id="custfbm" class="checkitem"> Facebook Mobile<br>
+            <input type="checkbox" id="googfb" class="checkitem"> Google search of Facebook<br>
+            
+            <p>
+			<b>Selectors for IG: <i>Names, aliases, and usernames/email prefixes</i></b><br>
+			<i>Please note</i>: all results from third-party sites must be verified on instagram.com.<br>
+            <input type="checkbox" id="custgoogig" class="checkitem"> Google search of Instagram<br>
+            <input type="checkbox" id="gramuser" class="checkitem"> GramUser (third-party site that searches IG)<br>
+            <input type="checkbox" id="gramfind" class="checkitem"> GramFind (third-party site that searches IG)<br>
+						
+            <p>
+            <b>Selectors for Google: <i>All selectors</i></b><br>
+            <input type="checkbox" id="custgoog" class="checkitem"> Google<br>
+			<input type="checkbox" id="custgoogim" class="checkitem"> Google Images search<br>
+                        
+			<p>
+            <b>Selectors for TW: <i>Names, aliases, and usernames/email prefixes</i></b><br>
+            <input type="checkbox" id="custtwpro" class="checkitem"> Twitter (profiles)<br>
+			<input type="checkbox" id="custtwgeo" class="checkitem"> Twitter (from nearby location based on R2D2 geographic egress point)<br>
+            <input type="checkbox" id="custgoogtw" class="checkitem"> Google search of Twitter <br>
+            
+			<p>
+            <b>Selectors for YT: <i>Names, aliases, and usernames/email prefixes</i></b><br>
+            <input type="checkbox" id="custyt" class="checkitem"> YouTube<br>
+
+            <p>
+            <b>Suggested selectors for other platforms: <i>Names, aliases, and usernames/email prefixes</i></b><br>
+			<input type="checkbox" id="tiktokusrnm" class="checkitem"> TikTok (direct URL for usernames only; may not be functioning)<br>
+			<input type="checkbox" id="tiktok3rd" class="checkitem"> TikTok (3rd party search of names and usernames; may not be functioning)<br>
+			<input type="checkbox" id="custsndcld" class="checkitem"> Soundcloud<br>
+			<input type="checkbox" id="weibo" class="checkitem"> Weibo<br>
+			</div>
+    	</div>
+	</div>
+	<form onsubmit="customSearch(this.all.value); return false;">
+			<input type="text" name="all" id="ipall" size="40" value="">
+			<input type="submit" style="width:120px" value="Search Selector">
+	</form>
+</div>
+ 
+<!-- THIS SCRIPT CONTROLS DROP DOWN BOX IN CUST SEARCH BOX -->           
+	<script>
+		var coll = document.getElementsByClassName("collapsible");
+		var i;
+		
+		for (i = 0; i < coll.length; i++) {
+		  coll[i].addEventListener("click", function() {
+			this.classList.toggle("active");
+			var content = this.nextElementSibling;
+			if (content.style.maxHeight){
+			  content.style.maxHeight = null;
+			} else {
+			  content.style.maxHeight = content.scrollHeight + "px";
+			} 
+		  });
+		}
+		</script>
+
+
+
+<!--Now I am putting in "FIND ID TOOLS" as it's own box.-->
+	<div style=
+	"min-width: 450px;
+	width: 85%;
+	border: 2px #0000FF solid;
+	padding: 5px;
+	position: relative;
+	left: 45px;
+	top: 10px;
+	margin: 20px 0;
+	background-color: #b3e99b;">
+   <h3> Platform ID Tools: </h3>
+   These are links to find unique account ID's on different social media platforms.
+   <ul>
+	<li>Find Facebook ID: <a href="https://lookup-id.com" target="_blank">Lookup-ID.com</a> OR <a href="https://commentpicker.com/find-facebook-id.php" target="_blank">Find My Facebook ID</a> OR: find "<b>profile_owner</b>" in the source code.</li>
+	<li>Find Business or Group Facebook ID by searching "<b>entity_id</b>" in the source code.</li>
+	<li>Find Twitter ID: <a href="http://gettwitterid.com/" target="_blank">Get A User's Twitter ID</a> OR: find "<b>profile_user</b>" (in Firefox) or "<b>data-user-id</b>" (in Chrome) in the source code.</li>
+	<li>Find Instagram ID: <a href="https://codeofaninja.com/tools/find-instagram-user-id" target="_blank">Find IG User ID</a> OR: find "<b>profilepage_</b>" in the source code.</li>
+	<li>Find YouTube ID: <a href="https://commentpicker.com/youtube-channel-id.php" target="_blank">YouTube Channel ID</a> OR: find "<b>externalID</b>" in the source code.</li>
+   </ul> 
+</div>
+
+<!-- NOTE BOX -->
+<div id="notebox" style=
+         "padding: 5px;
+		  position: relative;
+		  left: 45px;
+		  top: 3px;
+		  width:85%;
+		  margin-bottom: 10px;">	
+		<h3>Search Notes:</h3>
+		<textarea rows="2" cols='80'>THIS BOX CAN BE RESIZED USING BOTTOM RIGHT CORNER. These notes are deleted after R2D2 is closed. They will not be saved and will disappear if you close down this session.</textarea>
+	</div>
+
+<!--Updates Section -->
+<p><div style=
+	"min-width: 450px;
+	 width: 85%;
+     padding:5px;
+	 position: relative;
+	 left: 45px;
+	 top: 5px;
+	 display: block;">
+		<h3><u>UPDATES TO THE SEARCH LAUNCHER</u>: </h3>
+		<p>02/15/20:</p>
+			<ul>
+				<li>Users will be able to select their egress (location) after logging into R2D2. It will launch a new instance of the browser window and will NOT carry over any open windows when a new egress location is chosen.</li>
+				<li>Changes to searches of Twitter, defaulting to mobile platform searches.</li>
+				<li>Updates to SL links: new Facebook 3rd party ID finder link; additional IG link in custom search bar.</li>
+				<li>Added ID source code for FB accounts that belong to a business/organization. Additional link for FB also included.</li>
+                <li>Backend improvements for egress points including additional egress points for users.</li>
+            </ul>
+        <p>12/08/19:</p>
+			<ul>
+				<li>Backend improvements in the formation of instances, including removal of persistent cookies, to help anonymize web traffic. Remember, you can always clear your web traffic by pressing CTRL+SHIFT+DELETE and clearing all web history.</li>
+                <li>Pop-ups should be automatically enabled for the search launcher for users. If not, remember to enable them by clicking on the pop-up in Firefox or the red icon in the URL bar in Chrome.</li>
+				<li>Tabs that were previously opened upon launch are now saved as links in the "Bookmarks" folder. In order to launch all bookmarks, right click on the folder and select "open all".</li>
+			</ul>
+        <p>09/04/19:</p>
+			<ul>
+				<li>Due to changes in Facebook and Instagram, some third party sites and platforms may not perform as expected. Consult with resource pages or management to determine best course of actions if any platforms are not functioning. </li>
+				<li>Custom search box functionality added. Search box will allow to officers to choose platforms and re-run searches using those tabs. The standard Facebook page, however, continues to generate a new tab each search due to platform settings.</li>
+				<li>Source code of user profile ID's available so that it may be cut and pasted into the (Ctrl+F) finder bar. </li>
+				<li>Due to new account requirement, PIPL has been removed from default search launcher results tabs. It remains available within the custom search bar. Additional search functionality for US domestic phone numbers has been implemented with check box.</li>
+				<li>Due to Webstagram site no longer functioning, it has been removed from default search launcher results tabs. It remains available within the custom search bar. UserGram has been implemented as a replacement tool for officers. Still verify accounts on instagram.com.</li>
+                <li>Source code of user profile ID's available so that it may be cut and pasted into the (Ctrl+F) finder bar. </li>
+				<li>Checkbox added to allow users to switch between Facebook (main) and Facebook mobile search results for name selectors.</li>
+				<li>Additional search functionality for US phone numbers added as optional checkbox.</li>
+                <li>"Username only" checkbox added for usernames or profile names as selectors.</li>
+                <li>Platform ID source code added in addition to third-party sites. Can be copied within R2D2 for Ctrl+F search purposes.</li>
+				<li>Backend search launcher improvements.</li>
+			</ul>
+		<p>12/13/18:</p>
+			<ul>
+			<li>Search results now re-use tabs.  Searches of the same selector type (name, email, phone) will open within the prior results tabs. (<i>This does not apply to the tabs that open by default upon launch of R2D2, or to the standard Facebook tab.</i>) Closing tabs between selector types is recommended for clarity.</li>
+			<li>The following results have been added: Facebook mobile view and Google image results for names.</li>
+			<li>Corrected links for Twitter results with emails and handles.</li>
+			<li>Corrected links for optional PIPL results for emails and phone numbers.</li>
+			<li>The following results have been removed: Instagram.com as a direct link using full name.</li>
+            <li>Platform ID links have been added below search boxes.</li>
+            </ul> 
+		
+	</div>
+</p>	
+		
+		
+		
+	
+</div>
+ 
+<!--clock digital-->
+
+<!--This section creates a clock that always shows the current time-->
+<script type="text/javascript">
+	var tmonth = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
+
+	function GetClock() {
+		var tzOffset = -4;//set this to the number of hours offset from UTC
+
+		var d = new Date();
+		var dx = d.toGMTString();
+		dx = dx.substr(0, dx.length - 3);
+		d.setTime(Date.parse(dx))
+		d.setHours(d.getHours() + tzOffset);
+		var nmonth = d.getMonth(), ndate = d.getDate(), nyear = d.getFullYear();
+
+		var nhour = d.getHours(), nmin = d.getMinutes(), ap;
+		if (nhour == 0) { ap = " AM"; nhour = 12; }
+		else if (nhour < 12) { ap = " AM"; }
+		else if (nhour == 12) { ap = " PM"; }
+		else if (nhour > 12) { ap = " PM"; nhour -= 12; }
+
+		if (nmin <= 9) nmin = "0" + nmin;
+
+		document.getElementById('clockbox').innerHTML = "" + tmonth[nmonth] + " " + ndate + ", " + nyear + " " + nhour + ":" + nmin + ap + "";
+	}
+
+	window.onload = function () {
+		GetClock();
+		setInterval(GetClock, 1000);
+	}
+</script>
+
+<div id="clockbox" style="
+position: relative; 
+color:#2e6c80;
+left: 25px;
+font-size: 15px;">
+</div>
+
+</body>
+<!--Thus ends the clock-->

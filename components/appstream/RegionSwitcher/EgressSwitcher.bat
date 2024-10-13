@@ -1,0 +1,1 @@
+Powershell.exe -executionpolicy bypass -WindowStyle Hidden -File  "C:\AutoConfig\RegionSwitcherGui.ps1" 
