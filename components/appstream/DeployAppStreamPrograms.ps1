@@ -7,6 +7,7 @@ mkdir "C:\AutoConfig"
 mkdir "C:\BrowserData"
 mkdir "C:\Shortcuts"
 mkdir "C:\Profiles"
+# mkdir "C:\XPIFiles"
 
 #Download the package
 $env:AWS_PROFILE='appstream_machine_role'
@@ -18,8 +19,6 @@ aws s3 cp "s3://r2d2-binaries/appstream.zip" "C:\deployment\"
 #Unzip package
 Expand-Archive -Path "C:\deployment\appstream.zip" -DestinationPath "C:\deployment"
 
-
-
 #Install Google Chrome
 Expand-Archive -Path "C:\deployment\GoogleChromeEnterpriseBundle64.zip" -DestinationPath "C:\deployment" -Force
 Start-Process msiexec.exe -Wait -ArgumentList '/I C:\deployment\Installers\GoogleChromeStandaloneEnterprise64.msi /quiet'
@@ -28,11 +27,9 @@ Write-Host "installed google chrome"
 #uninstall Firefox 
 &"${r2d2path}\UninstallFirefox.ps1"
 
-
 #now install firefox 64
 Start-Process msiexec.exe -Wait -ArgumentList '/I C:\deployment\Firefox.msi /quiet'
 Write-Host "installed Firefox 64"
-
 
 #Set the Chrome GPO the way we want
 #Chrome Extensions
@@ -59,10 +56,7 @@ Set-ItemProperty -Path "HKLM:\Software\Policies\Google\Chrome\InsecureContentAll
 Set-ItemProperty -Path "HKLM:\Software\Policies\Google\Update\" -Name ProxyMode -Type String -Value "fixed_servers"
 Set-ItemProperty -Path "HKLM:\Software\Policies\Google\Update\" -Name ProxyServer -Type String -Value "us-east-1.r2d2hostedzone:3128"
 
-
-
-
-#Put Mozzilla Stuff in Place
+#Put Mozilla Stuff in Place
 Copy-Item -Destination 'C:\Program Files\Mozilla Firefox\defaults\pref\' -Path "${r2d2path}\firefox\autoconfig.js" -Force
 Copy-Item -Destination 'C:\Program Files\Mozilla Firefox\' -Path "${r2d2path}\firefox\mozilla.cfg" -Force
 Copy-Item -Destination 'C:\AutoConfig\' -Path "${r2d2path}\firefox\mozilla.cfg" -Force
@@ -70,7 +64,6 @@ Copy-Item -Destination C:\AutoConfig\ -Path "${r2d2path}\firefox\permissions.sql
 Copy-Item -Destination C:\AutoConfig\ -Path "${r2d2path}\firefox\places.sqlite"
 Copy-Item -Destination C:\AutoConfig\ -Path "${r2d2path}\firefox\xulstore.json"
 Copy-Item -Destination C:\AutoConfig\ -Path "${r2d2path}\firefox\extensions" -Recurse
-
 
 #Shortcut icons
 Copy-Item -Destination C:\Shortcuts\ -Path "${r2d2path}\firefox\firefoxicon.png"
@@ -80,17 +73,12 @@ Copy-Item -Destination C:\Shortcuts\ -Path "${r2d2path}\chrome\chromeicon.png"
 New-Item -Path "C:\Program Files\Mozilla Firefox\browser\" -ItemType Directory -Name "extensions" -Force
 Copy-Item -Destination "C:\Program Files\Mozilla Firefox\browser\extensions" -Path "${r2d2path}\firefox\extensions\*" -Recurse -Force
 
-
-
 #CookieGuard
 Copy-Item -Destination C:\AppStream\SessionScripts -Path "${r2d2path}\CookieGuard\*" -Recurse -Force
-
 
 #Splunk
 Start-Process msiexec.exe -Wait -ArgumentList '/I C:\deployment\splunkforwarder.msi AGREETOLICENSE=Yes /quiet'
 Copy-Item -Path 'C:\Deployment\appstream\SplunkForwarder\*' -Destination 'C:\Program Files\SplunkUniversalForwarder\etc\system\local\' -Recurse -Force
-
-
 
 #Copy RegionSwitcher to AutoConfig
 Copy-Item -Path "${r2d2path}\RegionSwitcher\*" -Destination "C:\AutoConfig\" -Recurse -Force
@@ -98,29 +86,26 @@ Copy-Item -Path "${r2d2path}\RegionSwitcher\*" -Destination "C:\AutoConfig\" -Re
 #Copy TimeZone Service to AutoConfig
 Copy-Item -Path "$r2d2path\TimeZone\TimeZone*" -Destination "C:\AutoConfig\" -Recurse -Force
 
-
 Copy-Item -Path "C:\AutoConfig\mozilla.cfg" -Destination "C:\Program Files\Mozilla Firefox\" -Force
 
 #Set Folder Permissions
 $files = @("C:\Program Files\Mozilla Firefox\mozilla.cfg","C:\AutoConfig\First Run","C:\AutoConfig\mozilla.cfg")
 $files | % {
-    $path = $_
-    $acl = Get-Acl $path
-    $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Users","FullControl", "None","None","Allow")
-    $acl.SetAccessRule($AccessRule)
-    $acl | Set-Acl $path
+   $path = $_
+   $acl = Get-Acl $path
+   $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Users","FullControl", "None","None","Allow")
+   $acl.SetAccessRule($AccessRule)
+   $acl | Set-Acl $path
 }
 
 $paths = @("C:\Shortcuts\","C:\BrowserData\")
 $paths | % {
-    $path = $_
-    $acl = Get-Acl $path
-    $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Users","FullControl", "ContainerInherit, ObjectInherit","None","Allow")
-    $acl.SetAccessRule($AccessRule)
-    $acl | Set-Acl $path
+   $path = $_
+   $acl = Get-Acl $path
+   $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule("BUILTIN\Users","FullControl", "ContainerInherit, ObjectInherit","None","Allow")
+   $acl.SetAccessRule($AccessRule)
+   $acl | Set-Acl $path
 }
-
-
 
 #Set Registry Permissions
 $regPath = "HKLM:\Software\Policies\Google\Chrome\"
@@ -130,19 +115,14 @@ $regAccessRule = New-Object System.Security.AccessControl.RegistryAccessRule("BU
 $regAcl.AddAccessRule($regAccessRule)
 $regAcl | Set-Acl $regPath
 
-
-
 #Install Time Zone Service
 Register-ScheduledTask -Xml (Get-Content 'C:\AutoConfig\TimeZone.xml' | Out-String) -TaskName "TimeZone" -User "SYSTEM"
-
-
 
 #Update Chrome
 $proxy = "us-east-1.r2d2hostedzone:3128"
 $regKey="HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings"
 Set-ItemProperty -path $regKey ProxyEnable -value 1
 Set-ItemProperty -path $regKey ProxyServer -value $proxy
-
 
 $chromeText = "start `"Chrome`" `"C:\Program Files\Google\Chrome\Application\chrome.exe`" --new-window --disable-signin-promo --no-first-run --disable-sync --start-maximized `"chrome://settings/help`""
 Set-Content "C:\Shortcuts\chrome.bat" "${chromeText}" -Encoding ASCII
@@ -162,10 +142,11 @@ $wshell.SendKeys("%{F4}")
 
 
 
+# Update Firefox
+$firefoxText = 'start "" "C:\Program Files\Mozilla Firefox\firefox.exe" -profile "C:\BrowserData\Firefox" "https://r2d2-launcher-nonprod.s3.amazonaws.com/homepage.html?proxy=Virginia&username="'
+Set-Content "C:\Shortcuts\firefox.bat" $firefoxText -Encoding ASCII
 
-#Update Firefox
-$firefoxText = "start `"Firefox`" `"C:\Program Files\Mozilla Firefox\firefox.exe`"  -profile `"C:\BrowserData\Firefox`" about:preferences#general"
-Set-Content "C:\Shortcuts\firefox.bat" "${firefoxText}" -Encoding ASCII
+# Execute the batch file
 Start "C:\Shortcuts\firefox.bat"
 Sleep 200
 $wshell = New-Object -ComObject wscript.shell
@@ -174,3 +155,5 @@ Start "C:\Shortcuts\firefox.bat"
 
 #Turn off System Proxy
 Set-ItemProperty -path $regKey ProxyEnable -value 0
+
+
